@@ -1355,6 +1355,9 @@ class Observer(Consumer):
             'wh65batt': 'battery',
             'eventrainin': 'rain_event',
 
+            # GARNI 3055 Arcus
+	    'wh80batt': 'battery',
+		
             # for all firmware
             'winddir': 'wind_dir',
             'windgustdir': 'wind_gust_dir',
@@ -2392,12 +2395,14 @@ class EcowittClient(Consumer):
             'lightning_time': 'lightning_time',
             'lightning_num': 'lightningcount',
             'wh57batt': 'wh57_battery',
+	    'wh80batt': 'wh80_battery',
         }
 
         IGNORED_LABELS = [
-            'PASSKEY', 'dateutc', 'stationtype', 'model', 'freq', 'maxdailygust', 'eventrainin', 'hourlyrainin', 'dailyrainin',
+            'PASSKEY', 'dateutc', 'stationtype', 'model', 'freq', 'baromrelin', 'maxdailygust', 'eventrainin', 'hourlyrainin', 'dailyrainin',
             'weeklyrainin', 'monthlyrainin', 'yearlyrainin',
             'pm25_avg_24h_ch1', 'winddir_avg10m', 'windspdmph_avg10m',
+	    'runtime', 'heap', 'interval'
         ]
 
         def __init__(self):
