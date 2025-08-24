@@ -2327,8 +2327,10 @@ class EcowittClient(Consumer):
     class Handler(Consumer.Handler):
 
         def get_response(self):
-            if int(-time.timezone)>=0: utcoffset = "+" + str(-time.timezone)
-      	    else: utcoffset = str(-time.timezone)
+            if int(-time.timezone) >= 0:
+                utcoffset = "+" + str(-time.timezone)
+            else:
+                utcoffset = str(-time.timezone)
             return '{"errcode":"0","errmsg":"ok","UTC_offset":"%s"}' % utcoffset
 
     class Parser(Consumer.Parser):
@@ -2336,6 +2338,7 @@ class EcowittClient(Consumer):
         # map labels to observation names
         LABEL_MAP = {
             'baromabsin': 'pressure',
+            'baromrelin': 'barometer',
             'humidity': 'humidity_out',
             'humidityin': 'humidity_in',
             'tempf': 'temperature_out',
@@ -2401,7 +2404,7 @@ class EcowittClient(Consumer):
         }
 
         IGNORED_LABELS = [
-            'PASSKEY', 'dateutc', 'stationtype', 'model', 'freq', 'baromrelin', 'maxdailygust', 'eventrainin', 'hourlyrainin', 'dailyrainin',
+            'PASSKEY', 'dateutc', 'stationtype', 'model', 'freq', 'maxdailygust', 'eventrainin', 'hourlyrainin', 'dailyrainin',
             'weeklyrainin', 'monthlyrainin', 'yearlyrainin',
             'pm25_avg_24h_ch1', 'winddir_avg10m', 'windspdmph_avg10m',
 	    'runtime', 'heap', 'interval'
