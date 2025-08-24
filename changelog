@@ -1,3 +1,10 @@
+1.0.0 24aug2025
+* added reading relative pressure from ecowitt station by @tfilo
+* updated _delta_strikes to not cause strike on weewx restart by @tfilo
+* added wh57 sensor support by @fra202088
+* updated UTC_offset by @stefanpflug
+* updated documentation by @boosterl
+
 0.54 22feb2020
 * added wh40batt in ecowitt protocol
 

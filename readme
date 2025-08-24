@@ -1,3 +1,7 @@
+# Fork of weewx-interceptor
+As the original repository (https://github.com/matthewwall/weewx-interceptor) is
+no longer maintained, this fork contains latest changes, improvements and bugfixes
+
 weewx-interceptor
 Copyright 2016-2020 Matthew Wall
 Distributed under terms of the GPLv3
