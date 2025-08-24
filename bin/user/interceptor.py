@@ -702,10 +702,10 @@ class Consumer(object):
         @staticmethod
         def _delta_strikes(strikes, last_strikes):
             if strikes is None:
-                return None
+                return 0
             if last_strikes is None:
                 loginf("skipping lightning strikes measurement of %s: no last strikes" % strikes)
-                return None
+                return 0
             if strikes < last_strikes:
                 loginf("lightning strikes wraparound detected: new=%s last=%s" %
                        (strikes, last_strikes))
