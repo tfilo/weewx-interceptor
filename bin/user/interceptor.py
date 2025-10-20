@@ -279,41 +279,54 @@ try:
     # weewx4 logging
     import weeutil.logger
     import logging
+
     log = logging.getLogger(__name__)
+
     def logdbg(msg):
         log.debug(msg)
+
     def loginf(msg):
         log.info(msg)
+
     def logerr(msg):
         log.error(msg)
+
 except ImportError:
     # old-style weewx logging
     import syslog
+
     def logmsg(level, msg):
-        syslog.syslog(level, 'interceptor: %s: %s' %
-                      (threading.currentThread().getName(), msg))
+        syslog.syslog(
+            level, "interceptor: %s: %s" % (threading.currentThread().getName(), msg)
+        )
+
     def logdbg(msg):
         logmsg(syslog.LOG_DEBUG, msg)
+
     def loginf(msg):
         logmsg(syslog.LOG_INFO, msg)
+
     def logerr(msg):
         logmsg(syslog.LOG_ERR, msg)
+
 
 import weewx.drivers
 import weeutil.weeutil
 
-DRIVER_NAME = 'Interceptor'
-DRIVER_VERSION = '1.0.0'
+DRIVER_NAME = "Interceptor"
+DRIVER_VERSION = "1.0.0"
 
-DEFAULT_ADDR = ''
+DEFAULT_ADDR = ""
 DEFAULT_PORT = 80
-DEFAULT_IFACE = 'eth0'
-DEFAULT_FILTER = 'dst port 80'
-DEFAULT_DEVICE_TYPE = 'acurite-bridge'
-DEFAULT_HARDWARE_NAME = 'weatherstation via interceptor'
+DEFAULT_IFACE = "eth0"
+DEFAULT_FILTER = "dst port 80"
+DEFAULT_DEVICE_TYPE = "acurite-bridge"
+DEFAULT_HARDWARE_NAME = "weatherstation via interceptor"
+
 
 def loader(config_dict, _):
     return InterceptorDriver(**config_dict[DRIVER_NAME])
+
 
 def confeditor_loader():
     return InterceptorConfigurationEditor()
@@ -322,24 +335,28 @@ def confeditor_loader():
 def _to_bytes(data):
     if sys.version_info < (3, 0):
         return bytes(data)
-    return bytes(data, 'utf8')
+    return bytes(data, "utf8")
+
 
 def _bytes_to_str(data):
     if sys.version_info < (3, 0):
         return data
-    return str(data, 'utf-8')
+    return str(data, "utf-8")
+
 
 def _obfuscate_passwords(msg):
-    return re.sub(r'(PASSWORD|PASSKEY)=[^&]+', r'\1=XXXX', msg)
+    return re.sub(r"(PASSWORD|PASSKEY)=[^&]+", r"\1=XXXX", msg)
+
 
 def _fmt_bytes(data):
     if not data:
-        return ''
-    return ' '.join(['%02x' % ord(x) for x in data])
+        return ""
+    return " ".join(["%02x" % ord(x) for x in data])
+
 
 def _cgi_to_dict(s):
-    if '=' in s:
-        return dict([y.strip() for y in x.split('=')] for x in s.split('&'))
+    if "=" in s:
+        return dict([y.strip() for y in x.split("=")] for x in s.split("&"))
     return dict()
 
 
@@ -367,70 +384,76 @@ class Consumer(object):
     # the default mapping is for the wview schema plus a few extensions.
 
     DEFAULT_SENSOR_MAP = {
-        'pressure': 'pressure',
-        'barometer': 'barometer',
-        'outHumidity': 'humidity_out',
-        'inHumidity': 'humidity_in',
-        'outTemp': 'temperature_out',
-        'inTemp': 'temperature_in',
-        'windSpeed': 'wind_speed',
-        'windGust': 'wind_gust',
-        'windDir': 'wind_dir',
-        'windGustDir': 'wind_gust_dir',
-        'radiation': 'solar_radiation',
-        'dewpoint': 'dewpoint',
-        'windchill': 'windchill',
-        'rain': 'rain',
-        'rainRate': 'rain_rate',
-        'UV': 'uv',
-        'txBatteryStatus': 'battery',
-        'extraTemp1': 'temperature_1',
-        'extraTemp2': 'temperature_2',
-        'extraTemp3': 'temperature_3',
-        'extraHumid1': 'humidity_1',
-        'extraHumid2': 'humidity_2',
-        'soilTemp1': 'soil_temperature_1',
-        'soilTemp2': 'soil_temperature_2',
-        'soilMoist1': 'soil_moisture_1',
-        'soilMoist2': 'soil_moisture_2',
-        'soilMoist3': 'soil_moisture_3',
-        'soilMoist4': 'soil_moisture_4',
-        'leafWet1': 'leafwetness_1',
-        'leafWet2': 'leafwetness_2',
+        "pressure": "pressure",
+        "barometer": "barometer",
+        "outHumidity": "humidity_out",
+        "inHumidity": "humidity_in",
+        "outTemp": "temperature_out",
+        "inTemp": "temperature_in",
+        "windSpeed": "wind_speed",
+        "windGust": "wind_gust",
+        "windDir": "wind_dir",
+        "windGustDir": "wind_gust_dir",
+        "radiation": "solar_radiation",
+        "dewpoint": "dewpoint",
+        "windchill": "windchill",
+        "rain": "rain",
+        "rainRate": "rain_rate",
+        "UV": "uv",
+        "txBatteryStatus": "battery",
+        "extraTemp1": "temperature_1",
+        "extraTemp2": "temperature_2",
+        "extraTemp3": "temperature_3",
+        "extraHumid1": "humidity_1",
+        "extraHumid2": "humidity_2",
+        "soilTemp1": "soil_temperature_1",
+        "soilTemp2": "soil_temperature_2",
+        "soilMoist1": "soil_moisture_1",
+        "soilMoist2": "soil_moisture_2",
+        "soilMoist3": "soil_moisture_3",
+        "soilMoist4": "soil_moisture_4",
+        "leafWet1": "leafwetness_1",
+        "leafWet2": "leafwetness_2",
         # these are not in the wview schema
-        'pm2_5': 'pm2_5',
-        'extraTemp4': 'temperature_4',
-        'extraTemp5': 'temperature_5',
-        'extraTemp6': 'temperature_6',
-        'extraTemp7': 'temperature_7',
-        'extraTemp8': 'temperature_8',
-        'extraHumid3': 'humidity_3',
-        'extraHumid4': 'humidity_4',
-        'extraHumid5': 'humidity_5',
-        'extraHumid6': 'humidity_6',
-        'extraHumid7': 'humidity_7',
-        'extraHumid8': 'humidity_8',
-        'soilTemp3': 'soil_temperature_3',
-        'soilTemp4': 'soil_temperature_4',
-        'lightning_strike_count': 'lightning_strike_count',
-        'lightningcount': 'lightningcount',
-	'lightning_last_det_time': 'lightning_time',
-	'lightning_distance': 'lightning_distance',
+        "pm2_5": "pm2_5",
+        "extraTemp4": "temperature_4",
+        "extraTemp5": "temperature_5",
+        "extraTemp6": "temperature_6",
+        "extraTemp7": "temperature_7",
+        "extraTemp8": "temperature_8",
+        "extraHumid3": "humidity_3",
+        "extraHumid4": "humidity_4",
+        "extraHumid5": "humidity_5",
+        "extraHumid6": "humidity_6",
+        "extraHumid7": "humidity_7",
+        "extraHumid8": "humidity_8",
+        "soilTemp3": "soil_temperature_3",
+        "soilTemp4": "soil_temperature_4",
+        "lightning_strike_count": "lightning_strike_count",
+        "lightningcount": "lightningcount",
+        "lightning_last_det_time": "lightning_time",
+        "lightning_distance": "lightning_distance",
     }
 
     def default_sensor_map(self):
         return Consumer.DEFAULT_SENSOR_MAP
 
-    def __init__(self, parser, mode='listen',
-                 address=DEFAULT_ADDR, port=DEFAULT_PORT, handler=None,
-                 iface=DEFAULT_IFACE, pcap_filter=DEFAULT_FILTER,
-                 promiscuous=0):
+    def __init__(
+        self,
+        parser,
+        mode="listen",
+        address=DEFAULT_ADDR,
+        port=DEFAULT_PORT,
+        handler=None,
+        iface=DEFAULT_IFACE,
+        pcap_filter=DEFAULT_FILTER,
+        promiscuous=0,
+    ):
         self.parser = parser
         loginf("mode is %s" % mode)
-        if mode == 'sniff':
-            self._server = Consumer.SniffServer(
-                iface, pcap_filter, promiscuous)
-        elif mode == 'listen':
+        if mode == "sniff":
+            self._server = Consumer.SniffServer(iface, pcap_filter, promiscuous)
+        elif mode == "listen":
             self._server = Consumer.TCPServer(address, port, handler)
         else:
             raise TypeError("unrecognized mode '%s'" % mode)
@@ -448,6 +471,7 @@ class Consumer(object):
     class Server(object):
         def run(self):
             pass
+
         def stop(self):
             pass
 
@@ -456,11 +480,12 @@ class Consumer(object):
         Abstraction to deal with the two different python pcap implementations,
         pylibpcap and pypcap.
         """
+
         def __init__(self, iface, pcap_filter, promiscuous):
             self.running = False
-            self.data_buffer = ''
+            self.data_buffer = ""
             self.sniffer_type = None
-            self.sniffer_version = 'unknown'
+            self.sniffer_version = "unknown"
             self.sniffer = None
             snaplen = 1600
             timeout_ms = 100
@@ -468,27 +493,28 @@ class Consumer(object):
             loginf("sniff iface=%s promiscuous=%s" % (iface, pval))
             loginf("sniff filter '%s'" % pcap_filter)
             import pcap
+
             try:
                 # try pylibpcap
                 self.sniffer = pcap.pcapObject()
                 self.sniffer.open_live(iface, snaplen, pval, timeout_ms)
                 self.sniffer.setfilter(pcap_filter, 0, 0)
-                self.sniffer_type = 'pylibpcap'
+                self.sniffer_type = "pylibpcap"
             except AttributeError:
                 # try pypcap
                 self.sniffer = pcap.pcap(iface, snaplen, pval)
                 self.sniffer.setfilter(pcap_filter)
-                self.sniffer_type = 'pypcap'
+                self.sniffer_type = "pypcap"
                 self.sniffer_version = pcap.__version__.lower()
             loginf("%s (%s)" % (self.sniffer_type, self.sniffer_version))
 
         def run(self):
             logdbg("start sniff server")
             self.running = True
-            if self.sniffer_type == 'pylibpcap':
+            if self.sniffer_type == "pylibpcap":
                 while self.running:
                     self.sniffer.dispatch(1, self.decode_ip_packet)
-            elif self.sniffer_type == 'pypcap':
+            elif self.sniffer_type == "pypcap":
                 for ts, pkt in self.sniffer:
                     if not self.running:
                         break
@@ -497,7 +523,7 @@ class Consumer(object):
         def stop(self):
             logdbg("stop sniff server")
             self.running = False
-            if self.sniffer_type == 'pylibpcap':
+            if self.sniffer_type == "pylibpcap":
                 self.sniffer.close()
             self.packet_sniffer = None
 
@@ -518,32 +544,37 @@ class Consumer(object):
             # &sensor=00003301&windspeedmph=5&winddir=113&rainin=0.00&...
             if not data:
                 return
-            logdbg("sniff: timestamp=%s pktlen=%s data=%s" %
-                   (_timestamp, _pktlen, _fmt_bytes(data)))
+            logdbg(
+                "sniff: timestamp=%s pktlen=%s data=%s"
+                % (_timestamp, _pktlen, _fmt_bytes(data))
+            )
             # FIXME: generalize the packet type detection
             header_len = 0
             idx = 0
-            if len(data) >= 15 and data[12:14] == '\x08\x00':
+            if len(data) >= 15 and data[12:14] == "\x08\x00":
                 # this is standard IP packet
-                header_len = ord(data[14]) & 0x0f
+                header_len = ord(data[14]) & 0x0F
                 idx = 4 * header_len + 34
-            elif (len(data) >= 70 and
-                data[12:14] == '\x81\x00' and data[16:18] == '\x08\x00'):
+            elif (
+                len(data) >= 70
+                and data[12:14] == "\x81\x00"
+                and data[16:18] == "\x08\x00"
+            ):
                 # this is 802.1Q tagged IP packet
-                header_len = ord(data[18]) & 0x0f
+                header_len = ord(data[18]) & 0x0F
                 idx = 4 * header_len + 38
             if idx and len(data) >= idx:
                 _data = data[idx:]
-                if 'GET' in _data:
+                if "GET" in _data:
                     self.flush()
                     logdbg("sniff: start GET")
                     self.data_buffer = _data
-                elif 'POST' in _data:
+                elif "POST" in _data:
                     self.flush()
                     logdbg("sniff: start POST")
-                    self.data_buffer = 'POST?' # start buffer with dummy
+                    self.data_buffer = "POST?"  # start buffer with dummy
                 elif len(self.data_buffer):
-                    if 'HTTP' in data:
+                    if "HTTP" in data:
                         # looks like the end of a multi-packet GET
                         self.flush()
                     else:
@@ -565,18 +596,17 @@ class Consumer(object):
                 return
             data = self.data_buffer
             # if this is a query string, parse it
-            if '?' in data:
+            if "?" in data:
                 data = urlparse.urlparse(data).query
             # trim any dangling HTTP/x.x and connection info
-            idx = data.find(' HTTP')
+            idx = data.find(" HTTP")
             if idx >= 0:
                 data = data[:idx]
             if len(data):
                 logdbg("SNIFF: %s" % _obfuscate_passwords(data))
                 Consumer.queue.put(data)
             # clear the data buffer
-            self.data_buffer = ''
-
+            self.data_buffer = ""
 
     class TCPServer(Server, TCPServer):
         daemon_threads = True
@@ -601,7 +631,7 @@ class Consumer(object):
 
         def get_response(self):
             # default reply is a simple 'OK' string
-            return 'OK'
+            return "OK"
 
         def reply(self):
             # standard reply is HTTP code of 200 and the response string
@@ -609,13 +639,13 @@ class Consumer(object):
             self.send_response(200)
             self.send_header("Content-Length", str(len(response)))
             self.end_headers()
-            self.wfile.write(response)            
+            self.wfile.write(response)
 
         def do_POST(self):
             # get the payload from an HTTP POST
             length = int(self.headers["Content-Length"])
-            data = self.rfile.read(length).decode('utf-8')
-            logdbg('POST: %s' % _obfuscate_passwords(data))
+            data = self.rfile.read(length).decode("utf-8")
+            logdbg("POST: %s" % _obfuscate_passwords(data))
             Consumer.queue.put(data)
             self.reply()
 
@@ -625,7 +655,7 @@ class Consumer(object):
         def do_GET(self):
             # get the query string from an HTTP GET
             data = urlparse.urlparse(self.path).query
-            logdbg('GET: %s' % _obfuscate_passwords(data))
+            logdbg("GET: %s" % _obfuscate_passwords(data))
             Consumer.queue.put(data)
             self.reply()
 
@@ -649,10 +679,10 @@ class Consumer(object):
             if sensor_map is None:
                 return pkt
             packet = dict()
-            if 'dateTime' in pkt:
-                packet['dateTime'] = pkt['dateTime']
-            if 'usUnits' in pkt:
-                packet['usUnits'] = pkt['usUnits']
+            if "dateTime" in pkt:
+                packet["dateTime"] = pkt["dateTime"]
+            if "usUnits" in pkt:
+                packet["usUnits"] = pkt["usUnits"]
             for n in sensor_map:
                 label = Consumer.Parser._find_match(sensor_map[n], pkt.keys())
                 if label:
@@ -665,14 +695,16 @@ class Consumer(object):
             # keylist is an array of observations, each of which is either
             # a simple label, or an identifier tuple.
             match = None
-            pparts = pattern.split('.')
+            pparts = pattern.split(".")
             if len(pparts) == 3:
                 for k in keylist:
-                    kparts = k.split('.')
-                    if (len(kparts) == 3 and
-                        Consumer.Parser._part_match(pparts[0], kparts[0]) and
-                        Consumer.Parser._part_match(pparts[1], kparts[1]) and
-                        Consumer.Parser._part_match(pparts[2], kparts[2])):
+                    kparts = k.split(".")
+                    if (
+                        len(kparts) == 3
+                        and Consumer.Parser._part_match(pparts[0], kparts[0])
+                        and Consumer.Parser._part_match(pparts[1], kparts[1])
+                        and Consumer.Parser._part_match(pparts[2], kparts[2])
+                    ):
                         match = k
                     elif pparts[0] == k:
                         match = k
@@ -694,8 +726,10 @@ class Consumer(object):
                 loginf("skipping rain measurement of %s: no last rain" % rain)
                 return None
             if rain < last_rain:
-                loginf("rain counter wraparound detected: new=%s last=%s" %
-                       (rain, last_rain))
+                loginf(
+                    "rain counter wraparound detected: new=%s last=%s"
+                    % (rain, last_rain)
+                )
                 return rain
             return rain - last_rain
 
@@ -704,14 +738,18 @@ class Consumer(object):
             if strikes is None:
                 return 0
             if last_strikes is None:
-                loginf("skipping lightning strikes measurement of %s: no last strikes" % strikes)
+                loginf(
+                    "skipping lightning strikes measurement of %s: no last strikes"
+                    % strikes
+                )
                 return 0
             if strikes < last_strikes:
-                loginf("lightning strikes wraparound detected: new=%s last=%s" %
-                       (strikes, last_strikes))
+                loginf(
+                    "lightning strikes wraparound detected: new=%s last=%s"
+                    % (strikes, last_strikes)
+                )
                 return strikes
             return strikes - last_strikes
-
 
         @staticmethod
         def decode_float(x):
@@ -725,11 +763,11 @@ class Consumer(object):
         def decode_datetime(s):
             if isinstance(s, int):
                 return s
-            if s == 'now':
+            if s == "now":
                 return int(time.time() + 0.5)
             s = s.replace("%20", " ")
             s = s.replace("%3A", ":")
-            if '+' in s:
+            if "+" in s:
                 # this is a fine offset (ambient, ecowitt) timestamp
                 ts = time.strptime(s, "%Y-%m-%d+%H:%M:%S")
             else:
@@ -740,89 +778,99 @@ class Consumer(object):
 
 # capture data from hardware that sends using the weather underground protocol
 
+
 class WUClient(Consumer):
 
     def __init__(self, **stn_dict):
         super(WUClient, self).__init__(
-            WUClient.Parser(), handler=WUClient.Handler, **stn_dict)
+            WUClient.Parser(), handler=WUClient.Handler, **stn_dict
+        )
 
     class Handler(Consumer.Handler):
 
         def get_response(self):
-            return 'success'
+            return "success"
 
     class Parser(Consumer.Parser):
 
         # map labels to observation names
         LABEL_MAP = {
-            'winddir': 'wind_dir',
-            'windspeedmph': 'wind_speed',
-            'windgustmph': 'wind_gust',
-            'windgustdir': 'wind_gust_dir',
-            'humidity': 'humidity_out',
-            'dewptf': 'dewpoint',
-            'tempf': 'temperature_out',
-            'temp1f': 'temperature_1',
-            'temp2f': 'temperature_2',
-            'temp3f': 'temperature_3',
-            'temp4f': 'temperature_4',
-            'temp5f': 'temperature_5',
-            'temp6f': 'temperature_6',
-            'temp7f': 'temperature_7',
-            'temp8f': 'temperature_8',
-            'humidity1': 'humidity_1',
-            'humidity2': 'humidity_2',
-            'humidity3': 'humidity_3',
-            'humidity4': 'humidity_4',
-            'humidity5': 'humidity_5',
-            'humidity6': 'humidity_6',
-            'humidity7': 'humidity_7',
-            'humidity8': 'humidity_8',
-            'baromin': 'barometer',
-            'soiltempf': 'soil_temperature_1',
-            'soiltemp2f': 'soil_temperature_2',
-            'soiltemp3f': 'soil_temperature_3',
-            'soiltemp4f': 'soil_temperature_4',
-            'soilmoisture1': 'soil_moisture_1',
-            'soilmoisture2': 'soil_moisture_2',
-            'soilmoisture3': 'soil_moisture_3',
-            'soilmoisture4': 'soil_moisture_4',
-            'leafwetness': 'leafwetness_1',
-            'solarradiation': 'solar_radiation',
-            'UV': 'uv',
-            'visibility': 'visibility',
-            'indoortempf': 'temperature_in',
-            'indoorhumidity': 'humidity_in',
-            'AqNO': 'no',
-            'AqNO2T': 'no2T',
-            'AqNO2': 'no2',
-            'AqNO2Y': 'no2Y',
-            'AqNOX': 'noX',
-            'AqNOY': 'noY',
-            'AqNO3': 'no3',
-            'AqSO4': 'so4',
-            'AqSO2': 'so',
-            'AqSO2T': 'so2T',
-            'AqCO': 'co',
-            'AqCOT': 'coT',
-            'AqEC': 'ec',
-            'AqOC': 'oc',
-            'AqBC': 'bc',
-            'AqUV-AETH': 'uv_aeth',
-            'AqPM2.5': 'pm2_5',
-            'AqPM10': 'pm10_0',
-            'AqOZONE': 'ozone',
+            "winddir": "wind_dir",
+            "windspeedmph": "wind_speed",
+            "windgustmph": "wind_gust",
+            "windgustdir": "wind_gust_dir",
+            "humidity": "humidity_out",
+            "dewptf": "dewpoint",
+            "tempf": "temperature_out",
+            "temp1f": "temperature_1",
+            "temp2f": "temperature_2",
+            "temp3f": "temperature_3",
+            "temp4f": "temperature_4",
+            "temp5f": "temperature_5",
+            "temp6f": "temperature_6",
+            "temp7f": "temperature_7",
+            "temp8f": "temperature_8",
+            "humidity1": "humidity_1",
+            "humidity2": "humidity_2",
+            "humidity3": "humidity_3",
+            "humidity4": "humidity_4",
+            "humidity5": "humidity_5",
+            "humidity6": "humidity_6",
+            "humidity7": "humidity_7",
+            "humidity8": "humidity_8",
+            "baromin": "barometer",
+            "soiltempf": "soil_temperature_1",
+            "soiltemp2f": "soil_temperature_2",
+            "soiltemp3f": "soil_temperature_3",
+            "soiltemp4f": "soil_temperature_4",
+            "soilmoisture1": "soil_moisture_1",
+            "soilmoisture2": "soil_moisture_2",
+            "soilmoisture3": "soil_moisture_3",
+            "soilmoisture4": "soil_moisture_4",
+            "leafwetness": "leafwetness_1",
+            "solarradiation": "solar_radiation",
+            "UV": "uv",
+            "visibility": "visibility",
+            "indoortempf": "temperature_in",
+            "indoorhumidity": "humidity_in",
+            "AqNO": "no",
+            "AqNO2T": "no2T",
+            "AqNO2": "no2",
+            "AqNO2Y": "no2Y",
+            "AqNOX": "noX",
+            "AqNOY": "noY",
+            "AqNO3": "no3",
+            "AqSO4": "so4",
+            "AqSO2": "so",
+            "AqSO2T": "so2T",
+            "AqCO": "co",
+            "AqCOT": "coT",
+            "AqEC": "ec",
+            "AqOC": "oc",
+            "AqBC": "bc",
+            "AqUV-AETH": "uv_aeth",
+            "AqPM2.5": "pm2_5",
+            "AqPM10": "pm10_0",
+            "AqOZONE": "ozone",
             # these have been observed, but apparently are unsupported?
-            'windchillf': 'windchill',
-            'lowbatt': 'battery',
+            "windchillf": "windchill",
+            "lowbatt": "battery",
         }
 
         IGNORED_LABELS = [
-            'ID', 'PASSWORD', 'dateutc', 'softwaretype',
-            'action', 'realtime', 'rtfreq',
-            'weather', 'clouds',
-            'windspdmph_avg2m', 'winddir_avg2m',
-            'windgustmph_10m', 'windgustdir_10m',
+            "ID",
+            "PASSWORD",
+            "dateutc",
+            "softwaretype",
+            "action",
+            "realtime",
+            "rtfreq",
+            "weather",
+            "clouds",
+            "windspdmph_avg2m",
+            "winddir_avg2m",
+            "windgustmph_10m",
+            "windgustdir_10m",
         ]
 
         def __init__(self):
@@ -832,31 +880,32 @@ class WUClient(Consumer):
             pkt = dict()
             try:
                 data = _cgi_to_dict(s)
-                pkt['dateTime'] = self.decode_datetime(
-                    data.pop('dateutc', int(time.time() + 0.5)))
-                pkt['usUnits'] = weewx.US
+                pkt["dateTime"] = self.decode_datetime(
+                    data.pop("dateutc", int(time.time() + 0.5))
+                )
+                pkt["usUnits"] = weewx.US
 
                 # different firmware seems to report rain in different ways.
                 # prefer to get rain total from the yearly count, but if
                 # that is not available, get it from the daily count.
                 rain_total = None
                 field = None
-                if 'dailyrainin' in data:
-                    rain_total = self.decode_float(data.pop('dailyrainin', None))
-                    field = 'dailyrainin'
-                    year_total = self.decode_float(data.pop('yearlyrainin', None))
+                if "dailyrainin" in data:
+                    rain_total = self.decode_float(data.pop("dailyrainin", None))
+                    field = "dailyrainin"
+                    year_total = self.decode_float(data.pop("yearlyrainin", None))
                     if year_total is not None:
                         rain_total = year_total
-                        field = 'yearlyrainin'
-                elif 'dailyrain' in data:
-                    rain_total = self.decode_float(data.pop('dailyrain', None))
-                    field = 'dailyrain'
-                    year_total = self.decode_float(data.pop('yearlyrain', None))
+                        field = "yearlyrainin"
+                elif "dailyrain" in data:
+                    rain_total = self.decode_float(data.pop("dailyrain", None))
+                    field = "dailyrain"
+                    year_total = self.decode_float(data.pop("yearlyrain", None))
                     if year_total is not None:
                         rain_total = year_total
-                        field = 'yearlyrain'
+                        field = "yearlyrain"
                 if rain_total is not None:
-                    pkt['rain_total'] = rain_total
+                    pkt["rain_total"] = rain_total
                     logdbg("using rain_total %s from %s" % (rain_total, field))
 
                 # get all of the other parameters
@@ -865,16 +914,16 @@ class WUClient(Consumer):
                         pkt[self.LABEL_MAP[n]] = self.decode_float(data[n])
                     elif n in self.IGNORED_LABELS:
                         val = data[n]
-                        if n == 'PASSWORD':
-                            val = 'X' * len(data[n])
+                        if n == "PASSWORD":
+                            val = "X" * len(data[n])
                         logdbg("ignored parameter %s=%s" % (n, val))
                     else:
                         loginf("unrecognized parameter %s=%s" % (n, data[n]))
 
                 # get the rain this period from total
-                if 'rain_total' in pkt:
-                    newtot = pkt['rain_total']
-                    pkt['rain'] = self._delta_rain(newtot, self._last_rain)
+                if "rain_total" in pkt:
+                    newtot = pkt["rain_total"]
+                    pkt["rain"] = self._delta_rain(newtot, self._last_rain)
                     self._last_rain = newtot
 
             except ValueError as e:
@@ -978,6 +1027,7 @@ class WUClient(Consumer):
 # resulting raw packet format:
 #   <observation_name>.<sensor>.<id> : value
 
+
 class AcuriteBridge(Consumer):
 
     # these are the known firmware versions as of 15oct2016:
@@ -997,28 +1047,31 @@ class AcuriteBridge(Consumer):
     # custom sensor map is necessary to avoid confusion of outputs.
     DEFAULT_SENSOR_MAP = {
         # wu format uses station pressure in every packet
-        'pressure': 'pressure.*.*',
+        "pressure": "pressure.*.*",
         # chaney format uses station pressure in bridge packets only
         #'pressure': 'pressure..*',
         # both formats
-        'inTemp': 'temperature_in.*.*',
-        'inHumidity': 'humidity_in.*.*',
-        'outTemp': 'temperature.?*.*',
-        'outHumidity': 'humidity.?*.*',
-        'windSpeed': 'windspeed.?*.*',
-        'windDir': 'winddir.?*.*',
-        'rain': 'rainfall.?*.*',
-        'txBatteryStatus': 'battery.?*.*',
-        'rxCheckPercent': 'rssi.?*.*'}
+        "inTemp": "temperature_in.*.*",
+        "inHumidity": "humidity_in.*.*",
+        "outTemp": "temperature.?*.*",
+        "outHumidity": "humidity.?*.*",
+        "windSpeed": "windspeed.?*.*",
+        "windDir": "winddir.?*.*",
+        "rain": "rainfall.?*.*",
+        "txBatteryStatus": "battery.?*.*",
+        "rxCheckPercent": "rssi.?*.*",
+    }
 
     def default_sensor_map(self):
         return AcuriteBridge.DEFAULT_SENSOR_MAP
 
     def __init__(self, **stn_dict):
         AcuriteBridge._firmware_version = stn_dict.pop(
-            'firmware_version', AcuriteBridge._firmware_version)
+            "firmware_version", AcuriteBridge._firmware_version
+        )
         super(AcuriteBridge, self).__init__(
-            AcuriteBridge.Parser(), handler=AcuriteBridge.Handler, **stn_dict)
+            AcuriteBridge.Parser(), handler=AcuriteBridge.Handler, **stn_dict
+        )
 
     class Handler(Consumer.Handler):
 
@@ -1035,38 +1088,66 @@ class AcuriteBridge(Consumer):
     class Parser(Consumer.Parser):
 
         # this is *not* the same as the acurite console mapping!
-        IDX_TO_DEG = {5: 0.0, 7: 22.5, 3: 45.0, 1: 67.5, 9: 90.0, 11: 112.5,
-                      15: 135.0, 13: 157.5, 12: 180.0, 14: 202.5, 10: 225.0,
-                      8: 247.5, 0: 270.0, 2: 292.5, 6: 315.0, 4: 337.5}
+        IDX_TO_DEG = {
+            5: 0.0,
+            7: 22.5,
+            3: 45.0,
+            1: 67.5,
+            9: 90.0,
+            11: 112.5,
+            15: 135.0,
+            13: 157.5,
+            12: 180.0,
+            14: 202.5,
+            10: 225.0,
+            8: 247.5,
+            0: 270.0,
+            2: 292.5,
+            6: 315.0,
+            4: 337.5,
+        }
 
         # map wu names to observation names
         LABEL_MAP = {
-            'humidity': 'humidity',
-            'tempf': 'temperature',
-            'indoorhumidity': 'humidity_in',
-            'indoortempf': 'temperature_in',
-            'ptempf': 'temperature_probe',
-            'baromin': 'pressure', # baromin is actually station pressure
-            'windspeedmph': 'windspeed',
-            'winddir': 'winddir',
-            'dailyrainin': 'rainfall'
+            "humidity": "humidity",
+            "tempf": "temperature",
+            "indoorhumidity": "humidity_in",
+            "indoortempf": "temperature_in",
+            "ptempf": "temperature_probe",
+            "baromin": "pressure",  # baromin is actually station pressure
+            "windspeedmph": "windspeed",
+            "winddir": "winddir",
+            "dailyrainin": "rainfall",
             # WARNING: since rainfall is obtained from dailyrainin, there
             # will be a counter wraparound at 00:00 each day.
         }
 
         IGNORED_LABELS = [
-            'ID', 'PASSWORD', 'dateutc',
-            'action', 'realtime', 'rtfreq', 'updateraw',
-            'rainin', 'dewptf',
-            'sensor', 'mt', 'id', 'probe', 'check', 'water'
+            "ID",
+            "PASSWORD",
+            "dateutc",
+            "action",
+            "realtime",
+            "rtfreq",
+            "updateraw",
+            "rainin",
+            "dewptf",
+            "sensor",
+            "mt",
+            "id",
+            "probe",
+            "check",
+            "water",
         ]
 
         @staticmethod
         def parse_identifiers(s):
             data = _cgi_to_dict(s)
-            return {'sensor_type': data.get('mt'),
-                    'sensor_id': data.get('sensor'),
-                    'bridge_id': data.get('id')}
+            return {
+                "sensor_type": data.get("mt"),
+                "sensor_id": data.get("sensor"),
+                "bridge_id": data.get("id"),
+            }
 
         def __init__(self):
             self._last_rain = dict()
@@ -1074,8 +1155,8 @@ class AcuriteBridge(Consumer):
         # be ready for either the chaney format or the wu format
         def parse(self, s):
             pkt = dict()
-            if '=' in s:
-                if s.find('action') >= 0:
+            if "=" in s:
+                if s.find("action") >= 0:
                     pkt = self.parse_wu(s)
                 else:
                     pkt = self.parse_chaney(s)
@@ -1087,80 +1168,94 @@ class AcuriteBridge(Consumer):
             try:
                 data = _cgi_to_dict(s)
                 # FIXME: add option to use computer time instead of station
-                pkt['dateTime'] = self.decode_datetime(
-                    data.pop('dateutc', int(time.time() + 0.5)))
-                pkt['usUnits'] = weewx.US
+                pkt["dateTime"] = self.decode_datetime(
+                    data.pop("dateutc", int(time.time() + 0.5))
+                )
+                pkt["usUnits"] = weewx.US
                 for n in data:
-                    if n == 'id':
-                        pkt['bridge_id'] = data[n]
-                    elif n == 'sensor':
-                        pkt['sensor_id'] = data[n]
-                    elif n == 'mt':
-                        pkt['sensor_type'] = data[n]
-                    elif n == 'battery':
-                        pkt['battery'] = 0 if data[n] == 'normal' else 1
-                    elif n == 'rssi':
-                        pkt['rssi'] = float(data[n]) * 25 # [0,100]
+                    if n == "id":
+                        pkt["bridge_id"] = data[n]
+                    elif n == "sensor":
+                        pkt["sensor_id"] = data[n]
+                    elif n == "mt":
+                        pkt["sensor_type"] = data[n]
+                    elif n == "battery":
+                        pkt["battery"] = 0 if data[n] == "normal" else 1
+                    elif n == "rssi":
+                        pkt["rssi"] = float(data[n]) * 25  # [0,100]
                     elif n in self.LABEL_MAP:
                         pkt[self.LABEL_MAP[n]] = self.decode_float(data[n])
                     elif n in self.IGNORED_LABELS:
                         val = data[n]
-                        if n == 'PASSWORD':
-                            val = 'X' * len(data[n])
+                        if n == "PASSWORD":
+                            val = "X" * len(data[n])
                         logdbg("ignored parameter %s=%s" % (n, val))
                     else:
                         loginf("unrecognized parameter %s=%s" % (n, data[n]))
             except ValueError as e:
                 logerr("parse failed for %s: %s" % (s, e))
             # convert rainfall to a delta
-            if 'rainfall' in pkt:
-                rain_total = pkt['rainfall']
-                if 'sensor_id' in pkt:
-                    last_rain = self._last_rain.get(pkt['sensor_id'])
-                    pkt['rainfall'] = self._delta_rain(rain_total, last_rain)
-                    pkt['rain_total'] = rain_total
-                    self._last_rain[pkt['sensor_id']] = rain_total
+            if "rainfall" in pkt:
+                rain_total = pkt["rainfall"]
+                if "sensor_id" in pkt:
+                    last_rain = self._last_rain.get(pkt["sensor_id"])
+                    pkt["rainfall"] = self._delta_rain(rain_total, last_rain)
+                    pkt["rain_total"] = rain_total
+                    self._last_rain[pkt["sensor_id"]] = rain_total
                 else:
                     loginf("ignored rainfall %s: no sensor_id" % rain_total)
-                    pkt['rainfall'] = None
+                    pkt["rainfall"] = None
             return self.add_identifiers(pkt)
 
         # parse packets that are in the chaney format
         def parse_chaney(self, s):
             pkt = dict()
-            parts = s.split('&')
+            parts = s.split("&")
             for x in parts:
                 if not x:
                     continue
-                if '=' not in x:
+                if "=" not in x:
                     loginf("unexpected un-assigned variable '%s'" % x)
                     continue
-                (n, v) = x.split('=')
+                (n, v) = x.split("=")
                 n = n.strip()
                 v = v.strip()
                 try:
-                    if n == 'id':
-                        pkt['bridge_id'] = v
-                    elif n == 'sensor':
-                        pkt['sensor_id'] = v
-                    elif n == 'mt':
-                        pkt['sensor_type'] = v
-                    elif n == 'battery':
-                        pkt['battery'] = 0 if v == 'normal' else 1
-                    elif n == 'rssi':
-                        pkt['rssi'] = float(v) * 25 # [0,100]
-                    elif n == 'humidity':
-                        pkt['humidity'] = float(v[2:5]) / 10.0 # %
-                    elif n == 'temperature':
-                        pkt['temperature'] = float(v[1:5]) / 10.0 # C
-                    elif n == 'windspeed':
-                        pkt['windspeed'] = float(v[2:5]) / 10.0 # m/s
-                    elif n == 'winddir':
-                        pkt['winddir'] = AcuriteBridge.Parser.IDX_TO_DEG.get(int(v, 16))
-                    elif n == 'rainfall':
-                        pkt['rainfall'] = float(v[2:8]) / 1000.0 # mm (delta)
-                    elif n in ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7',
-                               'A', 'B', 'C', 'D', 'PR', 'TR']:
+                    if n == "id":
+                        pkt["bridge_id"] = v
+                    elif n == "sensor":
+                        pkt["sensor_id"] = v
+                    elif n == "mt":
+                        pkt["sensor_type"] = v
+                    elif n == "battery":
+                        pkt["battery"] = 0 if v == "normal" else 1
+                    elif n == "rssi":
+                        pkt["rssi"] = float(v) * 25  # [0,100]
+                    elif n == "humidity":
+                        pkt["humidity"] = float(v[2:5]) / 10.0  # %
+                    elif n == "temperature":
+                        pkt["temperature"] = float(v[1:5]) / 10.0  # C
+                    elif n == "windspeed":
+                        pkt["windspeed"] = float(v[2:5]) / 10.0  # m/s
+                    elif n == "winddir":
+                        pkt["winddir"] = AcuriteBridge.Parser.IDX_TO_DEG.get(int(v, 16))
+                    elif n == "rainfall":
+                        pkt["rainfall"] = float(v[2:8]) / 1000.0  # mm (delta)
+                    elif n in [
+                        "C1",
+                        "C2",
+                        "C3",
+                        "C4",
+                        "C5",
+                        "C6",
+                        "C7",
+                        "A",
+                        "B",
+                        "C",
+                        "D",
+                        "PR",
+                        "TR",
+                    ]:
                         pkt[n] = int(v, 16)
                     else:
                         loginf("unknown element '%s' with value '%s'" % (n, v))
@@ -1168,12 +1263,14 @@ class AcuriteBridge(Consumer):
                     logerr("decode failed for %s '%s': %s" % (n, v, e))
 
             # if this is a pressure packet, calculate the pressure
-            if 'sensor_type' in pkt and pkt['sensor_type'] == 'pressure':
-                pkt['pressure'], pkt['temperature_in'] = AcuriteBridge.Parser.decode_pressure(pkt)
+            if "sensor_type" in pkt and pkt["sensor_type"] == "pressure":
+                pkt["pressure"], pkt["temperature_in"] = (
+                    AcuriteBridge.Parser.decode_pressure(pkt)
+                )
 
             # apply timestamp and units
-            pkt['dateTime'] = int(time.time() + 0.5)
-            pkt['usUnits'] = weewx.METRICWX
+            pkt["dateTime"] = int(time.time() + 0.5)
+            pkt["usUnits"] = weewx.METRICWX
 
             return self.add_identifiers(pkt)
 
@@ -1182,12 +1279,11 @@ class AcuriteBridge(Consumer):
             # tag each observation with identifiers:
             #   observation.<sensor_id>.<bridge_id>
             packet = dict()
-            if 'dateTime' in pkt:
-                packet['dateTime'] = pkt['dateTime']
-            if 'usUnits' in pkt:
-                packet['usUnits'] = pkt['usUnits']
-            _id = '%s.%s' % (
-                pkt.get('sensor_id', ''), pkt.get('bridge_id', ''))
+            if "dateTime" in pkt:
+                packet["dateTime"] = pkt["dateTime"]
+            if "usUnits" in pkt:
+                packet["usUnits"] = pkt["usUnits"]
+            _id = "%s.%s" % (pkt.get("sensor_id", ""), pkt.get("bridge_id", ""))
             for n in pkt:
                 packet["%s.%s" % (n, _id)] = pkt[n]
             return packet
@@ -1195,33 +1291,52 @@ class AcuriteBridge(Consumer):
         @staticmethod
         def decode_pressure(pkt):
             # pressure in mbar, temperature in degree C
-            if (0x100 <= pkt['C1'] <= 0xffff and
-                0x0 <= pkt['C2'] <= 0x1fff and
-                0x0 <= pkt['C3'] <= 0x400 and
-                0x0 <= pkt['C4'] <= 0x1000 and
-                0x1000 <= pkt['C5'] <= 0xffff and
-                0x0 <= pkt['C6'] <= 0x4000 and
-                0x960 <= pkt['C7'] <= 0xa28 and
-                0x01 <= pkt['A'] <= 0x3f and 0x01 <= pkt['B'] <= 0x3f and
-                0x01 <= pkt['C'] <= 0x0f and 0x01 <= pkt['D'] <= 0x0f):
+            if (
+                0x100 <= pkt["C1"] <= 0xFFFF
+                and 0x0 <= pkt["C2"] <= 0x1FFF
+                and 0x0 <= pkt["C3"] <= 0x400
+                and 0x0 <= pkt["C4"] <= 0x1000
+                and 0x1000 <= pkt["C5"] <= 0xFFFF
+                and 0x0 <= pkt["C6"] <= 0x4000
+                and 0x960 <= pkt["C7"] <= 0xA28
+                and 0x01 <= pkt["A"] <= 0x3F
+                and 0x01 <= pkt["B"] <= 0x3F
+                and 0x01 <= pkt["C"] <= 0x0F
+                and 0x01 <= pkt["D"] <= 0x0F
+            ):
                 return AcuriteBridge.Parser.decode_HP03S(
-                    pkt['C1'], pkt['C2'], pkt['C3'], pkt['C4'], pkt['C5'],
-                    pkt['C6'], pkt['C7'], pkt['A'], pkt['B'], pkt['C'],
-                    pkt['D'], pkt['PR'], pkt['TR'])
+                    pkt["C1"],
+                    pkt["C2"],
+                    pkt["C3"],
+                    pkt["C4"],
+                    pkt["C5"],
+                    pkt["C6"],
+                    pkt["C7"],
+                    pkt["A"],
+                    pkt["B"],
+                    pkt["C"],
+                    pkt["D"],
+                    pkt["PR"],
+                    pkt["TR"],
+                )
             logerr("one or more bogus constants in pressure packet: %s" % pkt)
             return None, None
 
         @staticmethod
         def decode_HP03S(c1, c2, c3, c4, c5, c6, c7, a, b, c, d, d1, d2):
             if d2 >= c5:
-                dut = d2 - c5 - ((d2-c5)/128) * ((d2-c5)/128) * a / (2<<(c-1))
+                dut = (
+                    d2 - c5 - ((d2 - c5) / 128) * ((d2 - c5) / 128) * a / (2 << (c - 1))
+                )
             else:
-                dut = d2 - c5 - ((d2-c5)/128) * ((d2-c5)/128) * b / (2<<(c-1))
+                dut = (
+                    d2 - c5 - ((d2 - c5) / 128) * ((d2 - c5) / 128) * b / (2 << (c - 1))
+                )
             off = 4 * (c2 + (c4 - 1024) * dut / 16384)
             sens = c1 + c3 * dut / 1024
             x = sens * (d1 - 7168) / 16384 - off
             p = 0.1 * (x * 10 / 32 + c7)
-            t = 0.1 * (250 + dut * c6 / 65536 - dut / (2<<(d-1)))
+            t = 0.1 * (250 + dut * c6 / 65536 - dut / (2 << (d - 1)))
             return p, t
 
 
@@ -1268,7 +1383,7 @@ class AcuriteBridge(Consumer):
 # 0.0&monthlyrain=0.0&yearlyrain=0.0&light=0.00&UV=1&intemp=19.8&inhumi
 # =46&absbaro=1018.30&relbaro=1018.30&lowbatt=0&dateutc=2016-4-30%2021:
 # 5:1&softwaretype=Weather%20logger%20V2.1.9&action=updateraw&realtime=
-# 1&rtfreq=5 HTTP/1.0 
+# 1&rtfreq=5 HTTP/1.0
 #
 # GET /weatherstation/updateweatherstation.php?ID=XXXXXXXXXXXXX&PASSWOR
 # D=PASSWORD&tempf=-9999&humidity=-9999&dewptf=-9999&windchillf=-9999&w
@@ -1297,80 +1412,84 @@ class AcuriteBridge(Consumer):
 # resulting raw packet format:
 #   <observation_name> : value
 
+
 class Observer(Consumer):
 
     def __init__(self, **stn_dict):
         super(Observer, self).__init__(
-            Observer.Parser(), handler=Observer.Handler, **stn_dict)
+            Observer.Parser(), handler=Observer.Handler, **stn_dict
+        )
 
     class Handler(Consumer.Handler):
 
         def get_response(self):
-            return 'success'
+            return "success"
 
     class Parser(Consumer.Parser):
 
         # map labels to observation names
         LABEL_MAP = {
             # firmware Weather logger V2.1.9
-            'humidity': 'humidity_out',
-            'indoorhumidity': 'humidity_in',
-            'tempf': 'temperature_out',
-            'indoortempf': 'temperature_in',
-            'baromin': 'barometer',
-            'windspeedmph': 'wind_speed',
-            'windgustmph': 'wind_gust',
-            'solarradiation': 'solar_radiation',
-            'dewptf': 'dewpoint',
-            'windchillf': 'windchill',
-
+            "humidity": "humidity_out",
+            "indoorhumidity": "humidity_in",
+            "tempf": "temperature_out",
+            "indoortempf": "temperature_in",
+            "baromin": "barometer",
+            "windspeedmph": "wind_speed",
+            "windgustmph": "wind_gust",
+            "solarradiation": "solar_radiation",
+            "dewptf": "dewpoint",
+            "windchillf": "windchill",
             # firmware HP1001 2.2.2
-            'outhumi': 'humidity_out',
-            'inhumi': 'humidity_in',
-            'outtemp': 'temperature_out',
-            'intemp': 'temperature_in',
-            'absbaro': 'pressure',
-            'windspeed': 'wind_speed',
-            'windgust': 'wind_gust',
-            'light': 'luminosity',
-            'dewpoint': 'dewpoint',
-            'windchill': 'windchill',
-            'rainrate': 'rain_rate',
-
+            "outhumi": "humidity_out",
+            "inhumi": "humidity_in",
+            "outtemp": "temperature_out",
+            "intemp": "temperature_in",
+            "absbaro": "pressure",
+            "windspeed": "wind_speed",
+            "windgust": "wind_gust",
+            "light": "luminosity",
+            "dewpoint": "dewpoint",
+            "windchill": "windchill",
+            "rainrate": "rain_rate",
             # firmware AMBWeatherV4.0.2
-            'baromabsin': 'pressure',
-            'tempinf': 'temperature_in',
-            'humidityin': 'humidity_in',
-            'uv': 'uv',
-
+            "baromabsin": "pressure",
+            "tempinf": "temperature_in",
+            "humidityin": "humidity_in",
+            "uv": "uv",
             # firmware WS-1002 V2.4.3 also reports station pressure
-            'absbaromin': 'pressure',
-
+            "absbaromin": "pressure",
             # firmware EasyWeatherV1.3.9 (ecowitt HP2550)
-            'AqPM2.5': 'pm2_5',
-            'soilmoisture': 'soilmoisture',
-
+            "AqPM2.5": "pm2_5",
+            "soilmoisture": "soilmoisture",
             # firmware GW1000B_V1.4.9 (ecowitt GW1000)
-            'rainratein': 'rain_rate',
-            'wh65batt': 'battery',
-            'eventrainin': 'rain_event',
-
+            "rainratein": "rain_rate",
+            "wh65batt": "battery",
+            "eventrainin": "rain_event",
             # GARNI 3055 Arcus
-	    'wh80batt': 'battery',
-		
+            "wh80batt": "battery",
             # for all firmware
-            'winddir': 'wind_dir',
-            'windgustdir': 'wind_gust_dir',
-            'UV': 'uv',
-            'lowbatt': 'battery',
+            "winddir": "wind_dir",
+            "windgustdir": "wind_gust_dir",
+            "UV": "uv",
+            "lowbatt": "battery",
         }
 
         IGNORED_LABELS = [
-            'ID', 'PASSWORD', 'PASSKEY', 'dateutc', 'softwaretype',
-            'action', 'realtime', 'rtfreq',
-            'relbaro', 'rainin',
-            'weeklyrain', 'monthlyrain',
-            'weeklyrainin', 'monthlyrainin',
+            "ID",
+            "PASSWORD",
+            "PASSKEY",
+            "dateutc",
+            "softwaretype",
+            "action",
+            "realtime",
+            "rtfreq",
+            "relbaro",
+            "rainin",
+            "weeklyrain",
+            "monthlyrain",
+            "weeklyrainin",
+            "monthlyrainin",
         ]
 
         def __init__(self):
@@ -1382,41 +1501,43 @@ class Observer(Consumer):
             try:
                 data = _cgi_to_dict(s)
                 # FIXME: add option to use computer time instead of station
-                pkt['dateTime'] = self.decode_datetime(
-                    data.pop('dateutc', int(time.time() + 0.5)))
-                pkt['usUnits'] = weewx.US if 'tempf' in data else weewx.METRIC
+                pkt["dateTime"] = self.decode_datetime(
+                    data.pop("dateutc", int(time.time() + 0.5))
+                )
+                pkt["usUnits"] = weewx.US if "tempf" in data else weewx.METRIC
 
                 # different firmware seems to report rain in different ways.
                 # prefer to get rain total from the yearly count, but if
                 # that is not available, get it from the daily count.
                 rain_total = None
                 field = None
-                if 'dailyrainin' in data:
-                    rain_total = self.decode_float(data.pop('dailyrainin', None))
-                    field = 'dailyrainin'
-                    year_total = self.decode_float(data.pop('yearlyrainin', None))
+                if "dailyrainin" in data:
+                    rain_total = self.decode_float(data.pop("dailyrainin", None))
+                    field = "dailyrainin"
+                    year_total = self.decode_float(data.pop("yearlyrainin", None))
                     if year_total is not None:
                         rain_total = year_total
-                        field = 'yearlyrainin'
-                elif 'dailyrain' in data:
-                    rain_total = self.decode_float(data.pop('dailyrain', None))
-                    field = 'dailyrain'
-                    year_total = self.decode_float(data.pop('yearlyrain', None))
+                        field = "yearlyrainin"
+                elif "dailyrain" in data:
+                    rain_total = self.decode_float(data.pop("dailyrain", None))
+                    field = "dailyrain"
+                    year_total = self.decode_float(data.pop("yearlyrain", None))
                     if year_total is not None:
                         rain_total = year_total
-                        field = 'yearlyrain'
+                        field = "yearlyrain"
                 if rain_total is not None:
-                    pkt['rain_total'] = rain_total
+                    pkt["rain_total"] = rain_total
                     logdbg("using rain_total %s from %s" % (rain_total, field))
 
                 # some firmware reports baromin as station pressure, but others
                 # report it as barometer.
-                if 'softwaretype' in data:
-                    fw = data['softwaretype']
-                    if fw == 'WH2600GEN_V2.2.5' or fw == 'WH2650A_V1.2.1':
-                        self.LABEL_MAP['baromin'] = 'pressure'
-                    logdbg("firmware %s: baromin is %s" %
-                           (fw, self.LABEL_MAP['baromin']))
+                if "softwaretype" in data:
+                    fw = data["softwaretype"]
+                    if fw == "WH2600GEN_V2.2.5" or fw == "WH2650A_V1.2.1":
+                        self.LABEL_MAP["baromin"] = "pressure"
+                    logdbg(
+                        "firmware %s: baromin is %s" % (fw, self.LABEL_MAP["baromin"])
+                    )
 
                 # get all of the other parameters
                 for n in data:
@@ -1424,30 +1545,33 @@ class Observer(Consumer):
                         pkt[self.LABEL_MAP[n]] = self.decode_float(data[n])
                     elif n in self.IGNORED_LABELS:
                         val = data[n]
-                        if n == 'PASSWORD' or n == 'PASSKEY':
-                            val = 'X' * len(data[n])
+                        if n == "PASSWORD" or n == "PASSKEY":
+                            val = "X" * len(data[n])
                         logdbg("ignored parameter %s=%s" % (n, val))
                     else:
                         loginf("unrecognized parameter %s=%s" % (n, data[n]))
 
                 # get the rain this period from total
-                if 'rain_total' in pkt:
-                    newtot = pkt['rain_total']
-                    if pkt['usUnits'] == weewx.METRIC:
-                        newtot /= 10.0 # METRIC wants cm, not mm
-                    pkt['rain'] = self._delta_rain(newtot, self._last_rain)
+                if "rain_total" in pkt:
+                    newtot = pkt["rain_total"]
+                    if pkt["usUnits"] == weewx.METRIC:
+                        newtot /= 10.0  # METRIC wants cm, not mm
+                    pkt["rain"] = self._delta_rain(newtot, self._last_rain)
                     self._last_rain = newtot
 
                 # ensure that the rain rate has the right units
-                if ('rainRate' in pkt and pkt['rainRate'] is not None and
-                    pkt['usUnits'] == weewx.METRIC):
-                    pkt['rainRate'] /= 10.0 # METRIC wants cm/hr, not mm/hr
+                if (
+                    "rainRate" in pkt
+                    and pkt["rainRate"] is not None
+                    and pkt["usUnits"] == weewx.METRIC
+                ):
+                    pkt["rainRate"] /= 10.0  # METRIC wants cm/hr, not mm/hr
 
                 # convert luminosity to solar radiation
                 # FIXME: this should be done in StdWXCalculate
-                if 'luminosity' in pkt and not 'solar_radiation' in pkt:
-                    lum2rad = 0.01075 # lux to W/m^2 (approximation)
-                    pkt['solar_radiation'] = pkt['luminosity'] * lum2rad
+                if "luminosity" in pkt and not "solar_radiation" in pkt:
+                    lum2rad = 0.01075  # lux to W/m^2 (approximation)
+                    pkt["solar_radiation"] = pkt["luminosity"] * lum2rad
             except ValueError as e:
                 logerr("parse failed for %s: %s" % (s, e))
             return pkt
@@ -1525,19 +1649,21 @@ class Observer(Consumer):
 # resulting raw packet format:
 #   <observation_name>.<ch>:<rid>.<mac> : value
 
+
 class LW30x(Consumer):
 
     # map database fields to sensor tuples
     DEFAULT_SENSOR_MAP = {
-        'pressure': 'baro.*.*',
-        'outTemp': 'ot.?:*.*',
-        'outHumidity': 'oh.?:*.*',
-        'windSpeed': 'ws.?:*.*',
-        'windGust': 'wg.?:*.*',
-        'windDir': 'wd.?:*.*',
-        'rainRate': 'rr.?:*.*',
-        'rain': 'rain.?:*.*',
-        'UV': 'uvh.?:*.*'}
+        "pressure": "baro.*.*",
+        "outTemp": "ot.?:*.*",
+        "outHumidity": "oh.?:*.*",
+        "windSpeed": "ws.?:*.*",
+        "windGust": "wg.?:*.*",
+        "windDir": "wd.?:*.*",
+        "rainRate": "rr.?:*.*",
+        "rain": "rain.?:*.*",
+        "UV": "uvh.?:*.*",
+    }
 
     def default_sensor_map(self):
         return LW30x.DEFAULT_SENSOR_MAP
@@ -1550,15 +1676,17 @@ class LW30x(Consumer):
         def __init__(self):
             self._last_rain = dict()
 
-        FLOATS = ['baro', 'ot', 'oh', 'ws', 'wg', 'wd', 'rr', 'rfa', 'uvh']
+        FLOATS = ["baro", "ot", "oh", "ws", "wg", "wd", "rr", "rfa", "uvh"]
 
         @staticmethod
         def parse_identifiers(s):
             data = _cgi_to_dict(s)
-            return {'sensor_type': data.get('id'),
-                    'channel': data.get('ch'),
-                    'sensor_id': data.get('rid'),
-                    'bridge_id': data.get('mac')}
+            return {
+                "sensor_type": data.get("id"),
+                "channel": data.get("ch"),
+                "sensor_id": data.get("rid"),
+                "bridge_id": data.get("mac"),
+            }
 
         def parse(self, s):
             pkt = dict()
@@ -1573,29 +1701,31 @@ class LW30x(Consumer):
                 logerr("parse failed for %s: %s" % (s, e))
 
             # convert rain from inches to mm
-            if 'rfa' in pkt:
-                pkt['rfa'] *= 25.4
-            if 'rr' in pkt:
-                pkt['rr'] *= 25.4
+            if "rfa" in pkt:
+                pkt["rfa"] *= 25.4
+            if "rr" in pkt:
+                pkt["rr"] *= 25.4
 
             # convert accumulated rain to rain delta
-            if 'rfa' in pkt:
-                rain_total = pkt['rfa']
-                if 'ch' in pkt and 'rid' in pkt:
-                    sensor_id = "%s:%s" % (pkt['ch'], pkt['rid'])
+            if "rfa" in pkt:
+                rain_total = pkt["rfa"]
+                if "ch" in pkt and "rid" in pkt:
+                    sensor_id = "%s:%s" % (pkt["ch"], pkt["rid"])
                     last_rain = self._last_rain.get(sensor_id)
-                    pkt['rain'] = self._delta_rain(rain_total, last_rain)
+                    pkt["rain"] = self._delta_rain(rain_total, last_rain)
                     self._last_rain[sensor_id] = rain_total
                 else:
                     loginf("ignored rainfall %s: no sensor_id" % rain_total)
-                    pkt['rain'] = None
+                    pkt["rain"] = None
 
             # tag each observation with identifiers:
             #   observation.<channel>:<sensor_id>.<bridge_id>
-            packet = {'dateTime': int(time.time() + 0.5),
-                      'usUnits': weewx.METRICWX}
-            _id = '%s:%s.%s' % (pkt.get('ch', ''), pkt.get('rid', ''),
-                                pkt.get('mac', ''))
+            packet = {"dateTime": int(time.time() + 0.5), "usUnits": weewx.METRICWX}
+            _id = "%s:%s.%s" % (
+                pkt.get("ch", ""),
+                pkt.get("rid", ""),
+                pkt.get("mac", ""),
+            )
             for n in pkt:
                 packet["%s.%s" % (n, _id)] = pkt[n]
             return packet
@@ -1831,6 +1961,7 @@ Press the rain button until beep on a registered station to flush data packets.
 # FIXME: implement standalone option to detect gw1000u broadcasts and configure
 #        the proxy settings to point to the machine running weewx
 
+
 class GW1000U(Consumer):
 
     # values for history interval:
@@ -1843,69 +1974,84 @@ class GW1000U(Consumer):
     #  0x06 - 1 hour
     #  0x07 - 2 hours
     HISTORY_INTERVALS = {
-        0: '1m', 1: '5m', 2: '10m', 3: '15m', 4: '20m', 5: '30m',
-        6: '1h', 7: '2h'}
+        0: "1m",
+        1: "5m",
+        2: "10m",
+        3: "15m",
+        4: "20m",
+        5: "30m",
+        6: "1h",
+        7: "2h",
+    }
 
-    UNREGISTERED_SERIAL = '0102030405060708'
-    EMPTY_SERIAL = '0' * 16
+    UNREGISTERED_SERIAL = "0102030405060708"
+    EMPTY_SERIAL = "0" * 16
 
-    station_serial = EMPTY_SERIAL # serial from lacrosse, starts with 7fff
-    ping_interval = 240 # how often gateway should ping the server, in seconds
-    sensor_interval = 1 # minutes between data packets
-    history_interval_idx = 1 # index of history interval
+    station_serial = EMPTY_SERIAL  # serial from lacrosse, starts with 7fff
+    ping_interval = 240  # how often gateway should ping the server, in seconds
+    sensor_interval = 1  # minutes between data packets
+    history_interval_idx = 1  # index of history interval
     lcd_brightness = 4
-    server_name = 'box.weatherdirect.com'
+    server_name = "box.weatherdirect.com"
 
     # map database fields to sensor identifier tuples
     DEFAULT_SENSOR_MAP = {
-        'barometer': 'barometer..*',
-        'inTemp': 'temperature_in..*',
-        'outTemp': 'temperature_out..*',
-        'inHumidity': 'humidity_in..*',
-        'outHumidity': 'humidity_out..*',
-        'windSpeed': 'wind_speed..*',
-        'windGust': 'gust_speed..*',
-        'windDir': 'wind_dir..*',
-        'windGustDir': 'gust_dir..*',
-        'rain': 'rain..*',
-        'rxCheckPercent': 'rf_signal_strength..*',
+        "barometer": "barometer..*",
+        "inTemp": "temperature_in..*",
+        "outTemp": "temperature_out..*",
+        "inHumidity": "humidity_in..*",
+        "outHumidity": "humidity_out..*",
+        "windSpeed": "wind_speed..*",
+        "windGust": "gust_speed..*",
+        "windDir": "wind_dir..*",
+        "windGustDir": "gust_dir..*",
+        "rain": "rain..*",
+        "rxCheckPercent": "rf_signal_strength..*",
     }
 
     def default_sensor_map(self):
         return GW1000U.DEFAULT_SENSOR_MAP
 
     def __init__(self, **stn_dict):
-        stn_dict['mode'] = 'listen' # sniffing not supported for this hardware
-        GW1000U.station_serial = stn_dict.pop('serial', GW1000U.station_serial)
+        stn_dict["mode"] = "listen"  # sniffing not supported for this hardware
+        GW1000U.station_serial = stn_dict.pop("serial", GW1000U.station_serial)
         if len(GW1000U.station_serial) != 16:
             raise weewx.ViolatedPrecondition("serial must be 16 characters")
-        loginf('using station serial %s' % GW1000U.station_serial)
-        GW1000U.ping_interval = int(stn_dict.pop(
-            'ping_interval', GW1000U.ping_interval))
-        loginf('using ping interval %ss' % GW1000U.ping_interval)
-        GW1000U.sensor_interval = int(stn_dict.pop(
-            'sensor_interval', GW1000U.sensor_interval))
+        loginf("using station serial %s" % GW1000U.station_serial)
+        GW1000U.ping_interval = int(
+            stn_dict.pop("ping_interval", GW1000U.ping_interval)
+        )
+        loginf("using ping interval %ss" % GW1000U.ping_interval)
+        GW1000U.sensor_interval = int(
+            stn_dict.pop("sensor_interval", GW1000U.sensor_interval)
+        )
         if GW1000U.sensor_interval < 1:
             raise weewx.ViolatedPrecondition("sensor_interval must be >= 1")
-        loginf('using sensor interval %sm' % GW1000U.sensor_interval)
-        GW1000U.history_interval_idx = int(stn_dict.pop(
-            'history_interval', GW1000U.history_interval_idx))
+        loginf("using sensor interval %sm" % GW1000U.sensor_interval)
+        GW1000U.history_interval_idx = int(
+            stn_dict.pop("history_interval", GW1000U.history_interval_idx)
+        )
         if GW1000U.history_interval_idx not in GW1000U.HISTORY_INTERVALS:
             raise weewx.ViolatedPrecondition("history interval must be 0-7")
-        loginf('using history interval %s (%s)' %
-               (GW1000U.history_interval_idx,
-                GW1000U.HISTORY_INTERVALS.pop(GW1000U.history_interval_idx)))
+        loginf(
+            "using history interval %s (%s)"
+            % (
+                GW1000U.history_interval_idx,
+                GW1000U.HISTORY_INTERVALS.pop(GW1000U.history_interval_idx),
+            )
+        )
         super(GW1000U, self).__init__(
-            GW1000U.Parser(), handler=GW1000U.Handler, **stn_dict)
+            GW1000U.Parser(), handler=GW1000U.Handler, **stn_dict
+        )
 
     @staticmethod
     def encode_ts(ts):
         # encode a 12-character time stamp into 6 bytes
         # FIXME: verify that this should be localtime, not utc
         tstr = time.strftime("%H%M%S%d%m%y", time.localtime(ts))
-        s = ''
+        s = ""
         for x in range(0, 6):
-            s += chr(GW1000U.encode_bcd(tstr[x * 2:x * 2 + 2]))
+            s += chr(GW1000U.encode_bcd(tstr[x * 2 : x * 2 + 2]))
         return s
 
     @staticmethod
@@ -1924,171 +2070,192 @@ class GW1000U(Consumer):
         lsb = x % 10
         if msb > 10:
             msb = 10
-        return (msb << 4) | (lsb & 0xf)
+        return (msb << 4) | (lsb & 0xF)
 
     class Handler(Consumer.Handler):
-        protocol_version = 'HTTP/1.1'
+        protocol_version = "HTTP/1.1"
         last_history_address = 0
 
         def do_PUT(self):
-            flags = '00:00'
-            response = ''
-            parts = self.headers.get('HTTP_IDENTIFY', '').split(':')
+            flags = "00:00"
+            response = ""
+            parts = self.headers.get("HTTP_IDENTIFY", "").split(":")
             if len(parts) == 4:
                 (mac, id1, code, id2) = parts
                 pkt_type = ("%s:%s" % (id1, id2)).upper()
-                length = int(self.headers.get('Content-Length', 0))
-                data = self.rfile.read(length) if length else ''
-                logdbg("recv: %s:%s %s %s %s" %
-                       (id1, id2, mac, code, _fmt_bytes(data)))
-                if pkt_type == '00:10':
+                length = int(self.headers.get("Content-Length", 0))
+                data = self.rfile.read(length) if length else ""
+                logdbg("recv: %s:%s %s %s %s" % (id1, id2, mac, code, _fmt_bytes(data)))
+                if pkt_type == "00:10":
                     # gateway power up
                     loginf("power up from gateway with mac %s" % mac)
-                    flags = '10:00'
-                elif pkt_type == '00:14':
+                    flags = "10:00"
+                elif pkt_type == "00:14":
                     # received after response to 7f:10 packet.
                     # gateway sends 14 bytes.
-                    loginf("registration confirmed for mac %s (%s)"
-                           % (mac, _fmt_bytes(data)))
-                    flags = '1C:00'
-                elif pkt_type == '00:20':
+                    loginf(
+                        "registration confirmed for mac %s (%s)"
+                        % (mac, _fmt_bytes(data))
+                    )
+                    flags = "1C:00"
+                elif pkt_type == "00:20":
                     # gateway registration
                     loginf("registration from gateway with mac %s" % mac)
-                    flags = '20:00' # sometimes replies with 20:01
-                    response = self._create_gateway_reg_response(
-                        GW1000U.server_name)
-                elif pkt_type == '00:30':
+                    flags = "20:00"  # sometimes replies with 20:01
+                    response = self._create_gateway_reg_response(GW1000U.server_name)
+                elif pkt_type == "00:30":
                     # received after response to 00:20 packet
-                    flags = '30:00' # also observed 30:01
-                elif pkt_type == '00:70':
+                    flags = "30:00"  # also observed 30:01
+                elif pkt_type == "00:70":
                     # gateway ping
-                    flags = '70:00' # also observed 20:01
-                    response = self._create_gateway_ping_response(
-                        GW1000U.ping_interval)
-                elif pkt_type == '01:00':
+                    flags = "70:00"  # also observed 20:01
+                    response = self._create_gateway_ping_response(GW1000U.ping_interval)
+                elif pkt_type == "01:00":
                     # station ping.  gateway sends 5 bytes.
-                    flags = '14:01'
+                    flags = "14:01"
                     response = self._create_station_ping_response(
                         int(time.time()),
                         GW1000U.station_serial,
                         GW1000U.sensor_interval,
                         GW1000U.history_interval_idx,
                         GW1000U.lcd_brightness,
-                        GW1000U.Handler.last_history_address)
-                elif pkt_type == '01:14':
+                        GW1000U.Handler.last_history_address,
+                    )
+                elif pkt_type == "01:14":
                     # unknown.  gateway sends 14 bytes.
                     # the first 8 bytes are the serial 7fffxxxxxxxx
                     if data and len(data) >= 8:
                         sn = GW1000U.decode_serial(data[0:8])
-                        if (sn.startswith('7fff') and
-                            GW1000U.station_serial == GW1000U.EMPTY_SERIAL):
+                        if (
+                            sn.startswith("7fff")
+                            and GW1000U.station_serial == GW1000U.EMPTY_SERIAL
+                        ):
                             loginf("using serial %s" % sn)
                             GW1000U.station_serial = sn
                         if sn == GW1000U.station_serial:
-                            flags = '1C:00'
-                            loginf("responded to msg 01:14 mac=%s sn=%s (%s)"
-                                   % (mac, sn, _fmt_bytes(data)))
+                            flags = "1C:00"
+                            loginf(
+                                "responded to msg 01:14 mac=%s sn=%s (%s)"
+                                % (mac, sn, _fmt_bytes(data))
+                            )
                         else:
-                            loginf("ignored msg 01:14 mac=%s sn=%s (%s)"
-                                   % (mac, sn, _fmt_bytes(data)))
+                            loginf(
+                                "ignored msg 01:14 mac=%s sn=%s (%s)"
+                                % (mac, sn, _fmt_bytes(data))
+                            )
                     else:
-                        loginf("ignored msg 01:14 with no serial mac=%s (%s)"
-                               % (mac, _fmt_bytes(data)))
-                elif pkt_type == '7F:10':
+                        loginf(
+                            "ignored msg 01:14 with no serial mac=%s (%s)"
+                            % (mac, _fmt_bytes(data))
+                        )
+                elif pkt_type == "7F:10":
                     # station registration.  gateway sends 13 bytes.
                     # the first 8 bytes are the serial 7fffxxxxxxxx
                     if data and len(data) >= 8:
                         sn = GW1000U.decode_serial(data[0:8])
-                        if (sn.startswith('7fff') and
-                            GW1000U.station_serial == GW1000U.EMPTY_SERIAL):
+                        if (
+                            sn.startswith("7fff")
+                            and GW1000U.station_serial == GW1000U.EMPTY_SERIAL
+                        ):
                             loginf("using serial %s" % sn)
                             GW1000U.station_serial = sn
                         do_reply = False
                         if sn == GW1000U.station_serial:
                             do_reply = True
                         if sn == GW1000U.UNREGISTERED_SERIAL:
-                            if GW1000U.station_serial.startswith('7fff'):
-                                loginf("assigning serial %s to unregistered"
-                                       " station mac=%s (%s)"
-                                       % (GW1000U.station_serial, mac,
-                                          _fmt_bytes(data)))
+                            if GW1000U.station_serial.startswith("7fff"):
+                                loginf(
+                                    "assigning serial %s to unregistered"
+                                    " station mac=%s (%s)"
+                                    % (GW1000U.station_serial, mac, _fmt_bytes(data))
+                                )
                                 do_reply = True
                             else:
                                 # FIXME: generate a new registration key
-                                loginf("ignored unregistered station mac=%s"
-                                       " (%s)" % (mac, _fmt_bytes(data)))
+                                loginf(
+                                    "ignored unregistered station mac=%s"
+                                    " (%s)" % (mac, _fmt_bytes(data))
+                                )
                         if do_reply:
-                            flags = '14:00'
+                            flags = "14:00"
                             response = self._create_station_reg_response(
-                                int(time.time()), sn, GW1000U.lcd_brightness)
-                            loginf("responded to msg 7F:10 mac=%s sn=%s (%s)"
-                                   % (mac, sn, _fmt_bytes(data)))
+                                int(time.time()), sn, GW1000U.lcd_brightness
+                            )
+                            loginf(
+                                "responded to msg 7F:10 mac=%s sn=%s (%s)"
+                                % (mac, sn, _fmt_bytes(data))
+                            )
                         else:
-                            loginf("ignored msg 7F:10 mac=%s sn=%s (%s)"
-                                   % (mac, sn, _fmt_bytes(data)))
+                            loginf(
+                                "ignored msg 7F:10 mac=%s sn=%s (%s)"
+                                % (mac, sn, _fmt_bytes(data))
+                            )
                     else:
-                        loginf("ignored msg 7F:10 with no serial mac=%s (%s)"
-                               % (mac, _fmt_bytes(data)))
-                elif pkt_type == '01:01':
+                        loginf(
+                            "ignored msg 7F:10 with no serial mac=%s (%s)"
+                            % (mac, _fmt_bytes(data))
+                        )
+                elif pkt_type == "01:01":
                     # data packet
-                    flags = '00:00' # also observed 00:01
+                    flags = "00:00"  # also observed 00:01
                     if data and ord(data[0]) == 0x01:
                         # this is a current conditions packet, process it
-                        Consumer.queue.put({'mac': mac,
-                                            'data': binascii.b2a_hex(data)})
+                        Consumer.queue.put({"mac": mac, "data": binascii.b2a_hex(data)})
                     elif data and ord(data[0]) == 0x21:
                         # this is a history packet, get the history address
                         caddr = ord(data[4]) * 256 + ord(data[5])
                         naddr = ord(data[6]) * 256 + ord(data[7])
-                        logdbg("current_addr=0x%04x next_addr=0x%04x" %
-                               (caddr, naddr))
+                        logdbg("current_addr=0x%04x next_addr=0x%04x" % (caddr, naddr))
                         GW1000U.Handler.last_history_address = caddr
                     else:
-                        loginf("unknown data packet type: %s" %
-                               _fmt_bytes(data))
+                        loginf("unknown data packet type: %s" % _fmt_bytes(data))
                 else:
                     loginf("unknown packet type %s" % pkt_type)
-            elif 'HTTP_IDENTIFY' not in self.headers:
-                loginf('no HTTP_IDENTIFY in headers')
+            elif "HTTP_IDENTIFY" not in self.headers:
+                loginf("no HTTP_IDENTIFY in headers")
             else:
-                loginf("unknown format for HTTP_IDENTIFY: '%s'" %
-                       self.headers.get('HTTP_IDENTIFY', ''))
+                loginf(
+                    "unknown format for HTTP_IDENTIFY: '%s'"
+                    % self.headers.get("HTTP_IDENTIFY", "")
+                )
 
             logdbg("send: %s %s" % (flags, _fmt_bytes(response)))
 
-            tstr = time.strftime("%a, %d %b %Y %H:%M:%S GMT",
-                                 time.gmtime(time.time()))
+            tstr = time.strftime("%a, %d %b %Y %H:%M:%S GMT", time.gmtime(time.time()))
 
             self.send_response(200)
-            self.send_header('HTTP_FLAGS', flags)
-            self.send_header('Server', 'Microsoft-IIS/8.0')
-            self.send_header('X-Powered-By', 'ASP.NET')
-            self.send_header('X-ApsNet-Version', '2.0.50727')
-            self.send_header('Cache-Control', 'private')
-            self.send_header('Content-Length', len(response))
-            self.send_header('Content-Type', 'application/octet-stream')
-            self.send_header('Date', tstr)
-            self.send_header('Connection', 'close')
+            self.send_header("HTTP_FLAGS", flags)
+            self.send_header("Server", "Microsoft-IIS/8.0")
+            self.send_header("X-Powered-By", "ASP.NET")
+            self.send_header("X-ApsNet-Version", "2.0.50727")
+            self.send_header("Cache-Control", "private")
+            self.send_header("Content-Length", len(response))
+            self.send_header("Content-Type", "application/octet-stream")
+            self.send_header("Date", tstr)
+            self.send_header("Connection", "close")
             self.end_headers()
             self.wfile.write(response)
 
         @staticmethod
         def _create_gateway_reg_response(server):
             # 252-byte reply
-            return ''.join(
-                [chr(0) * 8, # FIXME: what should these 8 bytes be?
-                 server.ljust(0x98, chr(0)),
-                 ("%s%s%s" % (server, chr(0), server)).ljust(0x56, chr(0)),
-                 chr(0) * 5, # FIXME: what should these 5 bytes be?
-                 chr(0xff)])
+            return "".join(
+                [
+                    chr(0) * 8,  # FIXME: what should these 8 bytes be?
+                    server.ljust(0x98, chr(0)),
+                    ("%s%s%s" % (server, chr(0), server)).ljust(0x56, chr(0)),
+                    chr(0) * 5,  # FIXME: what should these 5 bytes be?
+                    chr(0xFF),
+                ]
+            )
 
         @staticmethod
         def _create_gateway_ping_response(interval):
             # 18-byte reply
             hi = interval // 256
             lo = interval % 256
-            return ''.join([chr(0) * 16, chr(hi), chr(lo)])
-        
+            return "".join([chr(0) * 16, chr(hi), chr(lo)])
+
         @staticmethod
         def _create_station_reg_response(ts, serial, brightness):
             # 38-byte reply
@@ -2096,60 +2263,91 @@ class GW1000U(Consumer):
             # the only difference.  need more samples from lacrosse alerts to
             # see whether the last two bytes really should be calculated the
             # same way as those of the ping response.
-            payload = ''.join(
-                [chr(1),
-                 GW1000U.encode_serial(serial), # 8 bytes
-                 chr(0) + chr(0x30) + chr(0) + chr(0xf) + chr(0) + chr(0) + chr(0) + chr(0xf) + chr(0) + chr(0) + chr(0),
-                 chr(0x77), # FIXME: should be sensor interval minus one?
-                 chr(0),
-                 chr(0xe) + chr(0xff), # FIXME: should be last history address?
-                 GW1000U.encode_ts(ts), # 6 bytes
-                 chr(0x53),
-                 chr(0x7), # history interval?
-                 chr(brightness - 1), # LCD brightness
-                 chr(0) + chr(0), # beep weather station
-                 chr(0), # unknown
-                 chr(0x7)]) # unknown - 0x7 is from lacrosse alerts
+            payload = "".join(
+                [
+                    chr(1),
+                    GW1000U.encode_serial(serial),  # 8 bytes
+                    chr(0)
+                    + chr(0x30)
+                    + chr(0)
+                    + chr(0xF)
+                    + chr(0)
+                    + chr(0)
+                    + chr(0)
+                    + chr(0xF)
+                    + chr(0)
+                    + chr(0)
+                    + chr(0),
+                    chr(0x77),  # FIXME: should be sensor interval minus one?
+                    chr(0),
+                    chr(0xE) + chr(0xFF),  # FIXME: should be last history address?
+                    GW1000U.encode_ts(ts),  # 6 bytes
+                    chr(0x53),
+                    chr(0x7),  # history interval?
+                    chr(brightness - 1),  # LCD brightness
+                    chr(0) + chr(0),  # beep weather station
+                    chr(0),  # unknown
+                    chr(0x7),
+                ]
+            )  # unknown - 0x7 is from lacrosse alerts
             cs = GW1000U.Handler.checksum8(payload)
             return payload + chr(cs)
 
         @staticmethod
-        def _create_station_ping_response(ts, serial,
-                                          sensor_interval, history_interval,
-                                          brightness, last_history_address):
+        def _create_station_ping_response(
+            ts,
+            serial,
+            sensor_interval,
+            history_interval,
+            brightness,
+            last_history_address,
+        ):
             # 38-byte reply
             # sensor_interval is in minutes
             hi = last_history_address // 256
             lo = last_history_address % 256
-            payload = ''.join(
-                [chr(1),
-                 GW1000U.encode_serial(serial), # 8 bytes starting with 7fff
-                 chr(0) + chr(0x32) + chr(0) + chr(0xb) + chr(0) + chr(0) + chr(0) + chr(0xf) + chr(0) + chr(0) + chr(0),
-                 chr(sensor_interval - 1), # byte 0x14 (0x3)
-                 chr(0),
-                 chr(hi) + chr(lo), # last_history_address 2 bytes (0x3e 0xde)
-                 GW1000U.encode_ts(ts), # 6 bytes
-                 chr(0x53),
-                 chr(history_interval), # byte 0x1f (0x7)
-                 chr(brightness - 1), # byte 0x20 (0x4)
-                 chr(0) + chr(0),
-                 chr(0)])
+            payload = "".join(
+                [
+                    chr(1),
+                    GW1000U.encode_serial(serial),  # 8 bytes starting with 7fff
+                    chr(0)
+                    + chr(0x32)
+                    + chr(0)
+                    + chr(0xB)
+                    + chr(0)
+                    + chr(0)
+                    + chr(0)
+                    + chr(0xF)
+                    + chr(0)
+                    + chr(0)
+                    + chr(0),
+                    chr(sensor_interval - 1),  # byte 0x14 (0x3)
+                    chr(0),
+                    chr(hi) + chr(lo),  # last_history_address 2 bytes (0x3e 0xde)
+                    GW1000U.encode_ts(ts),  # 6 bytes
+                    chr(0x53),
+                    chr(history_interval),  # byte 0x1f (0x7)
+                    chr(brightness - 1),  # byte 0x20 (0x4)
+                    chr(0) + chr(0),
+                    chr(0),
+                ]
+            )
             cs = GW1000U.Handler.checksum16p7(payload)
-            return payload + chr(cs >> 8) + chr(cs & 0xff)
+            return payload + chr(cs >> 8) + chr(cs & 0xFF)
 
         @staticmethod
         def checksum8(x):
             n = 0
             for c in x:
                 n += ord(c)
-            return n & 0xff
+            return n & 0xFF
 
         @staticmethod
         def checksum16p7(x):
-            n = 7 # the checksum has a seed of 7
+            n = 7  # the checksum has a seed of 7
             for c in x:
                 n += ord(c)
-            return n & 0xffff
+            return n & 0xFFFF
 
     class Parser(Consumer.Parser):
 
@@ -2158,25 +2356,27 @@ class GW1000U(Consumer):
 
         @staticmethod
         def parse_identifiers(payload):
-            return {'bridge_id': payload.get('mac')}
+            return {"bridge_id": payload.get("mac")}
 
         def parse(self, payload):
             # parse the bytes from the payload
-            s = payload.get('data', '')
+            s = payload.get("data", "")
             pkt = dict()
             try:
-                if len(s) == 394 and s[0:2] == '01':
+                if len(s) == 394 and s[0:2] == "01":
                     pkt = self.parse_current(s)
-                elif len(s) in [60,96,132,168,204,240,276,312,348,384,420] and s[0:2] == '21':
+                elif (
+                    len(s) in [60, 96, 132, 168, 204, 240, 276, 312, 348, 384, 420]
+                    and s[0:2] == "21"
+                ):
                     pkt = self.parse_history(s)
                 else:
                     loginf("unhandled data len=%s (%s)" % (len(s), s))
             except ValueError as e:
                 logerr("parse failed for %s: %s" % (payload, e))
             # now tag each value with identifiers
-            mac = payload.get('mac')
-            packet = {'dateTime': int(time.time() + 0.5),
-                      'usUnits': weewx.METRIC}
+            mac = payload.get("mac")
+            packet = {"dateTime": int(time.time() + 0.5), "usUnits": weewx.METRIC}
             for n in pkt:
                 packet["%s..%s" % (n, mac)] = pkt[n]
             return packet
@@ -2185,95 +2385,95 @@ class GW1000U(Consumer):
             # this expects a string of hex characters.  the data packet length
             # is 197, so the hex string should be 394 characters.
             pkt = dict()
-            pkt['record_type'] = s[0:2] # always 01
-            pkt['rf_signal_strength'] = int(s[2:4], 16) # %
-            pkt['status'] = s[4:6] # 0x10, 0x20, 0x30
-            pkt['forecast'] = s[6:8] # 0x11, 0x12, 0x20, 0x21
-            pkt['temperature_in'] = self.to_temperature(s, 39) # C
-            pkt['temperature_out'] = self.to_temperature(s, 75) # C
-            ok = int(s[114], 16) == 0 # 0=ok, 0xa=err
-            pkt['windchill'] = self.to_temperature(s, 111) if ok else None # C
-            pkt['humidity_in'] = self.to_hum(s, 140) # %
-            pkt['humidity_out'] = self.to_hum(s, 166) # %
-            pkt['rain_total'] = self.to_rainfall(s, 267) / 10.0 # cm
-            pkt['rain'] = self._delta_rain(pkt['rain_total'], self._last_rain)
-            self._last_rain = pkt['rain_total']
-            ok = int(s[297], 16) == 0 # 0=ok, 5=err
+            pkt["record_type"] = s[0:2]  # always 01
+            pkt["rf_signal_strength"] = int(s[2:4], 16)  # %
+            pkt["status"] = s[4:6]  # 0x10, 0x20, 0x30
+            pkt["forecast"] = s[6:8]  # 0x11, 0x12, 0x20, 0x21
+            pkt["temperature_in"] = self.to_temperature(s, 39)  # C
+            pkt["temperature_out"] = self.to_temperature(s, 75)  # C
+            ok = int(s[114], 16) == 0  # 0=ok, 0xa=err
+            pkt["windchill"] = self.to_temperature(s, 111) if ok else None  # C
+            pkt["humidity_in"] = self.to_hum(s, 140)  # %
+            pkt["humidity_out"] = self.to_hum(s, 166)  # %
+            pkt["rain_total"] = self.to_rainfall(s, 267) / 10.0  # cm
+            pkt["rain"] = self._delta_rain(pkt["rain_total"], self._last_rain)
+            self._last_rain = pkt["rain_total"]
+            ok = int(s[297], 16) == 0  # 0=ok, 5=err
             if ok:
-                pkt['wind_speed'] = self.to_windspeed(s, 290) # kph
-                pkt['wind_dir'] = self.to_winddir(s, 298) # degrees
-                pkt['gust_speed'] = self.to_windspeed(s, 320) # kph
-                pkt['gust_dir'] = self.to_winddir(s, 328) # degrees
+                pkt["wind_speed"] = self.to_windspeed(s, 290)  # kph
+                pkt["wind_dir"] = self.to_winddir(s, 298)  # degrees
+                pkt["gust_speed"] = self.to_windspeed(s, 320)  # kph
+                pkt["gust_dir"] = self.to_winddir(s, 328)  # degrees
             else:
-                pkt['wind_speed'] = None
-                pkt['wind_dir'] = None
-                pkt['gust_speed'] = None
-                pkt['gust_dir'] = None
-            pkt['barometer'] = self.to_pressure(s, 339) # mbar
+                pkt["wind_speed"] = None
+                pkt["wind_dir"] = None
+                pkt["gust_speed"] = None
+                pkt["gust_dir"] = None
+            pkt["barometer"] = self.to_pressure(s, 339)  # mbar
             return pkt
 
         def parse_history(self, s):
             pkt = dict()
-            pkt['record_type'] = s[0:2] # always 21
-            pkt['current_address'] = self.to_addr(s, 8)
-            pkt['next_address'] = self.to_addr(s, 12)
+            pkt["record_type"] = s[0:2]  # always 21
+            pkt["current_address"] = self.to_addr(s, 8)
+            pkt["next_address"] = self.to_addr(s, 12)
             # FIXME: decode the records
             return pkt
-        
+
         @staticmethod
         def to_addr(x, idx):
-            hi = int(x[idx: idx + 2], 16)
-            lo = int(x[idx + 2:idx + 4], 16)
+            hi = int(x[idx : idx + 2], 16)
+            lo = int(x[idx + 2 : idx + 4], 16)
             return hi * 256 + lo
 
         @staticmethod
         def to_temperature(x, idx):
             # returns temperature in degree C
-            s = x[idx:idx + 3]
-            if s.lower() == 'aaa' or s.lower() == 'aa3' or s.lower() == 'aa6':
+            s = x[idx : idx + 3]
+            if s.lower() == "aaa" or s.lower() == "aa3" or s.lower() == "aa6":
                 return None
             return GW1000U.Parser.bcd2int(s) / 10.0 - 40.0
 
         @staticmethod
         def to_hum(x, idx):
             # returns humidity in percent
-            s = x[idx:idx + 2]
-            if s.lower() == 'aa':
+            s = x[idx : idx + 2]
+            if s.lower() == "aa":
                 return None
             return GW1000U.Parser.bcd2int(s)
 
         @staticmethod
         def to_windspeed(x, idx):
             # returns windspeed in km per hour
-            return GW1000U.Parser.bin2int(x[idx:idx + 4]) / 100.0
+            return GW1000U.Parser.bin2int(x[idx : idx + 4]) / 100.0
 
         @staticmethod
         def to_winddir(x, idx):
             # returns compass degrees in [0,360]
-            return int(x[idx:idx + 1], 16) * 22.5
+            return int(x[idx : idx + 1], 16) * 22.5
 
         @staticmethod
         def to_pressure(x, idx):
             # returns barometric pressure in mbar
-            return GW1000U.Parser.bcd2int(x[idx:idx + 5]) / 10.0
+            return GW1000U.Parser.bcd2int(x[idx : idx + 5]) / 10.0
 
         @staticmethod
         def to_rainfall(x, idx, n=7):
             # each tip is 0.01", returns rain total in mm
-            v = GW1000U.Parser.bcd2int(x[idx:idx + n])
+            v = GW1000U.Parser.bcd2int(x[idx : idx + n])
             if n == 6:
                 v /= 100.0
             else:
                 v /= 1000.0
             return v
-                
+
         @staticmethod
         def bcd2int(x):
             v = 0
             for y in x:
                 v = v * 10 + int(y)
             return v
-                
+
         @staticmethod
         def bin2int(x):
             v = 0
@@ -2317,12 +2517,15 @@ FFFF 120021 807D5A3D537A C0A84C08 AFC810 475731303030422D5749464935333741
 Here the IPADDR is 192.168.76.8, and the SSID uses the last 4 digits of the
 MAC address.
 """
+
+
 class EcowittClient(Consumer):
     """Use the ecowitt protocol (not WU protocol) to capture data"""
 
     def __init__(self, **stn_dict):
         super(EcowittClient, self).__init__(
-            EcowittClient.Parser(), handler=EcowittClient.Handler, **stn_dict)
+            EcowittClient.Parser(), handler=EcowittClient.Handler, **stn_dict
+        )
 
     class Handler(Consumer.Handler):
 
@@ -2337,77 +2540,92 @@ class EcowittClient(Consumer):
 
         # map labels to observation names
         LABEL_MAP = {
-            'baromabsin': 'pressure',
-            'baromrelin': 'barometer',
-            'humidity': 'humidity_out',
-            'humidityin': 'humidity_in',
-            'tempf': 'temperature_out',
-            'tempinf': 'temperature_in',
-            'temp1f': 'temperature_1',
-            'temp2f': 'temperature_2',
-            'temp3f': 'temperature_3',
-            'temp4f': 'temperature_4',
-            'temp5f': 'temperature_5',
-            'temp6f': 'temperature_6',
-            'temp7f': 'temperature_7',
-            'temp8f': 'temperature_8',
-            'humidity1': 'humidity_1',
-            'humidity2': 'humidity_2',
-            'humidity3': 'humidity_3',
-            'humidity4': 'humidity_4',
-            'humidity5': 'humidity_5',
-            'humidity6': 'humidity_6',
-            'humidity7': 'humidity_7',
-            'humidity8': 'humidity_8',
-            'batt1': 'battery_1',
-            'batt2': 'battery_2',
-            'batt3': 'battery_3',
-            'batt4': 'battery_4',
-            'batt5': 'battery_5',
-            'batt6': 'battery_6',
-            'batt7': 'battery_7',
-            'batt8': 'battery_8',
-            'soilmoisture1': 'soil_moisture_1',
-            'soilmoisture2': 'soil_moisture_2',
-            'soilmoisture3': 'soil_moisture_3',
-            'soilmoisture4': 'soil_moisture_4',
-            'soilmoisture5': 'soil_moisture_5',
-            'soilmoisture6': 'soil_moisture_6',
-            'soilmoisture7': 'soil_moisture_7',
-            'soilmoisture8': 'soil_moisture_8',
-            'soilbatt1': 'soil_battery_1',
-            'soilbatt2': 'soil_battery_2',
-            'soilbatt3': 'soil_battery_3',
-            'soilbatt4': 'soil_battery_4',
-            'soilbatt5': 'soil_battery_5',
-            'soilbatt6': 'soil_battery_6',
-            'soilbatt7': 'soil_battery_7',
-            'soilbatt8': 'soil_battery_8',
-            'windspeedmph': 'wind_speed',
-            'windgustmph': 'wind_gust',
-            'winddir': 'wind_dir',
-            'solarradiation': 'solar_radiation',
-            'uv': 'uv',
-            'totalrainin': 'rain_total',
-            'rainratein': 'rain_rate',
-            'wh25batt': 'wh25_battery',
-            'wh26batt': 'wh26_battery',
-            'wh40batt': 'wh40_battery',
-            'wh65batt': 'battery',
-            'pm25_ch1': 'pm2_5',
-            'pm25batt1': 'pm25_battery',
-            'lightning': 'lightning_distance',
-            'lightning_time': 'lightning_time',
-            'lightning_num': 'lightningcount',
-            'wh57batt': 'wh57_battery',
-	    'wh80batt': 'wh80_battery',
+            "baromabsin": "pressure",
+            "baromrelin": "barometer",
+            "humidity": "humidity_out",
+            "humidityin": "humidity_in",
+            "tempf": "temperature_out",
+            "tempinf": "temperature_in",
+            "temp1f": "temperature_1",
+            "temp2f": "temperature_2",
+            "temp3f": "temperature_3",
+            "temp4f": "temperature_4",
+            "temp5f": "temperature_5",
+            "temp6f": "temperature_6",
+            "temp7f": "temperature_7",
+            "temp8f": "temperature_8",
+            "humidity1": "humidity_1",
+            "humidity2": "humidity_2",
+            "humidity3": "humidity_3",
+            "humidity4": "humidity_4",
+            "humidity5": "humidity_5",
+            "humidity6": "humidity_6",
+            "humidity7": "humidity_7",
+            "humidity8": "humidity_8",
+            "batt1": "battery_1",
+            "batt2": "battery_2",
+            "batt3": "battery_3",
+            "batt4": "battery_4",
+            "batt5": "battery_5",
+            "batt6": "battery_6",
+            "batt7": "battery_7",
+            "batt8": "battery_8",
+            "soilmoisture1": "soil_moisture_1",
+            "soilmoisture2": "soil_moisture_2",
+            "soilmoisture3": "soil_moisture_3",
+            "soilmoisture4": "soil_moisture_4",
+            "soilmoisture5": "soil_moisture_5",
+            "soilmoisture6": "soil_moisture_6",
+            "soilmoisture7": "soil_moisture_7",
+            "soilmoisture8": "soil_moisture_8",
+            "soilbatt1": "soil_battery_1",
+            "soilbatt2": "soil_battery_2",
+            "soilbatt3": "soil_battery_3",
+            "soilbatt4": "soil_battery_4",
+            "soilbatt5": "soil_battery_5",
+            "soilbatt6": "soil_battery_6",
+            "soilbatt7": "soil_battery_7",
+            "soilbatt8": "soil_battery_8",
+            "windspeedmph": "wind_speed",
+            "windgustmph": "wind_gust",
+            "winddir": "wind_dir",
+            "solarradiation": "solar_radiation",
+            "uv": "uv",
+            "totalrainin": "rain_total",
+            "rainratein": "rain_rate",
+            "wh25batt": "wh25_battery",
+            "wh26batt": "wh26_battery",
+            "wh40batt": "wh40_battery",
+            "wh65batt": "battery",
+            "pm25_ch1": "pm2_5",
+            "pm25batt1": "pm25_battery",
+            "lightning": "lightning_distance",
+            "lightning_time": "lightning_time",
+            "lightning_num": "lightningcount",
+            "wh57batt": "wh57_battery",
+            "wh80batt": "wh80_battery",
         }
 
         IGNORED_LABELS = [
-            'PASSKEY', 'dateutc', 'stationtype', 'model', 'freq', 'maxdailygust', 'eventrainin', 'hourlyrainin', 'dailyrainin',
-            'weeklyrainin', 'monthlyrainin', 'yearlyrainin',
-            'pm25_avg_24h_ch1', 'winddir_avg10m', 'windspdmph_avg10m',
-	    'runtime', 'heap', 'interval'
+            "PASSKEY",
+            "dateutc",
+            "stationtype",
+            "model",
+            "freq",
+            "maxdailygust",
+            "eventrainin",
+            "hourlyrainin",
+            "dailyrainin",
+            "weeklyrainin",
+            "monthlyrainin",
+            "yearlyrainin",
+            "pm25_avg_24h_ch1",
+            "winddir_avg10m",
+            "windspdmph_avg10m",
+            "runtime",
+            "heap",
+            "interval",
+            "vpd",
         ]
 
         def __init__(self):
@@ -2419,9 +2637,10 @@ class EcowittClient(Consumer):
             pkt = dict()
             try:
                 data = _cgi_to_dict(s)
-                pkt['dateTime'] = self.decode_datetime(
-                    data.pop('dateutc', int(time.time() + 0.5)))
-                pkt['usUnits'] = weewx.US
+                pkt["dateTime"] = self.decode_datetime(
+                    data.pop("dateutc", int(time.time() + 0.5))
+                )
+                pkt["usUnits"] = weewx.US
 
                 # some devices (e.g., HP2551_V1.5.7) emit something that looks
                 # a lot like ecowitt protocol, but not quite.  one thing that
@@ -2430,45 +2649,49 @@ class EcowittClient(Consumer):
                 # measurement.  do this only once, and do not be fooled by
                 # partial packets.
                 if not self._rain_mapping_confirmed:
-                    if 'totalrainin' not in data and 'yearlyrainin' in data:
-                        self.LABEL_MAP.pop('totalrainin')
-                        self.LABEL_MAP['yearlyrainin'] = 'rain_total'
+                    if "totalrainin" not in data and "yearlyrainin" in data:
+                        self.LABEL_MAP.pop("totalrainin")
+                        self.LABEL_MAP["yearlyrainin"] = "rain_total"
                         self._rain_mapping_confirmed = True
                         loginf("using 'yearlyrainin' for rain_total")
-                    elif 'totalrainin' in data:
+                    elif "totalrainin" in data:
                         self._rain_mapping_confirmed = True
                         loginf("using 'totalrainin' for rain_total")
 
                 # get all of the other parameters
                 for n in data:
                     if n in self.LABEL_MAP:
-                        pkt[self.LABEL_MAP[n]] = self.decode_float(data[n]) if data[n] != '' else 0
+                        pkt[self.LABEL_MAP[n]] = (
+                            self.decode_float(data[n]) if data[n] != "" else 0
+                        )
                     elif n in self.IGNORED_LABELS:
                         val = data[n]
-                        if n == 'PASSKEY':
-                            val = 'X' * len(data[n])
+                        if n == "PASSKEY":
+                            val = "X" * len(data[n])
                         logdbg("ignored parameter %s=%s" % (n, val))
                     else:
                         loginf("unrecognized parameter %s=%s" % (n, data[n]))
-                #Fix lightinig distance unit
-                if 'lightning_distance' in pkt:
-                    #WH57 gives a value in kilometers, if we have us units we must convert it to miles, we could use direct formula or call weewx.units methods
-                    #c = weewx.units.Converter()
-                    lightdistkm = pkt['lightning_distance']
-                    #d_m = (lightdistkm , 'km', 'group_distance')
-                    #pkt['lightningdist'] = c.convert(d_m)[0]
-                    #direct conversion
-                    pkt['lightning_distance'] = 0.62137119 * lightdistkm
+                # Fix lightinig distance unit
+                if "lightning_distance" in pkt:
+                    # WH57 gives a value in kilometers, if we have us units we must convert it to miles, we could use direct formula or call weewx.units methods
+                    # c = weewx.units.Converter()
+                    lightdistkm = pkt["lightning_distance"]
+                    # d_m = (lightdistkm , 'km', 'group_distance')
+                    # pkt['lightningdist'] = c.convert(d_m)[0]
+                    # direct conversion
+                    pkt["lightning_distance"] = 0.62137119 * lightdistkm
 
                 # get the rain this period from total
-                if 'rain_total' in pkt:
-                    newtot = pkt['rain_total']
-                    pkt['rain'] = self._delta_rain(newtot, self._last_rain)
+                if "rain_total" in pkt:
+                    newtot = pkt["rain_total"]
+                    pkt["rain"] = self._delta_rain(newtot, self._last_rain)
                     self._last_rain = newtot
 
-                if 'lightningcount' in pkt:
-                    new_strikes_total = pkt['lightningcount']
-                    pkt['lightning_strike_count'] = self._delta_strikes(new_strikes_total, self._last_strikes_total)
+                if "lightningcount" in pkt:
+                    new_strikes_total = pkt["lightningcount"]
+                    pkt["lightning_strike_count"] = self._delta_strikes(
+                        new_strikes_total, self._last_strikes_total
+                    )
                     self._last_strikes_total = new_strikes_total
             except ValueError as e:
                 logerr("parse failed for %s: %s" % (s, e))
@@ -2546,53 +2769,61 @@ class InterceptorConfigurationEditor(weewx.drivers.AbstractConfEditor):
     def prompt_for_settings(self):
         print("Specify the type of device whose data will be captured")
         device_type = self._prompt(
-            'device_type', 'acurite-bridge',
-            ['acurite-bridge', 'observer', 'lw30x', 'lacrosse-bridge',
-             'wu-client', 'ecowitt-client'])
-        return {'device_type': device_type}
+            "device_type",
+            "acurite-bridge",
+            [
+                "acurite-bridge",
+                "observer",
+                "lw30x",
+                "lacrosse-bridge",
+                "wu-client",
+                "ecowitt-client",
+            ],
+        )
+        return {"device_type": device_type}
 
 
 class InterceptorDriver(weewx.drivers.AbstractDevice):
     DEVICE_TYPES = {
-        'acurite-bridge': AcuriteBridge,
-        'observer': Observer,
-        'observerip': Observer,
-        'lw30x': LW30x,
-        'lacrosse-bridge': GW1000U,
-        'ecowitt-client': EcowittClient,
-        'fineoffset-bridge': EcowittClient, # for backward compatibility
-        'wu-client': WUClient
+        "acurite-bridge": AcuriteBridge,
+        "observer": Observer,
+        "observerip": Observer,
+        "lw30x": LW30x,
+        "lacrosse-bridge": GW1000U,
+        "ecowitt-client": EcowittClient,
+        "fineoffset-bridge": EcowittClient,  # for backward compatibility
+        "wu-client": WUClient,
     }
 
     def __init__(self, **stn_dict):
-        loginf('driver version is %s' % DRIVER_VERSION)
-        stn_dict.pop('driver')
-        self._device_type = stn_dict.pop('device_type', 'acurite-bridge')
+        loginf("driver version is %s" % DRIVER_VERSION)
+        stn_dict.pop("driver")
+        self._device_type = stn_dict.pop("device_type", "acurite-bridge")
         if not self._device_type in self.DEVICE_TYPES:
             raise TypeError("unsupported device type '%s'" % self._device_type)
-        loginf('device type: %s' % self._device_type)
-        self._hardware_name = stn_dict.pop('hardware_name', DEFAULT_HARDWARE_NAME)
-        loginf('hardware name: %s' % self._hardware_name)
-        self._queue_timeout = int(stn_dict.pop('queue_timeout', 10))
-        obs_map = stn_dict.pop('sensor_map', None)
-        obs_map_ext = stn_dict.pop('sensor_map_extensions', {})
+        loginf("device type: %s" % self._device_type)
+        self._hardware_name = stn_dict.pop("hardware_name", DEFAULT_HARDWARE_NAME)
+        loginf("hardware name: %s" % self._hardware_name)
+        self._queue_timeout = int(stn_dict.pop("queue_timeout", 10))
+        obs_map = stn_dict.pop("sensor_map", None)
+        obs_map_ext = stn_dict.pop("sensor_map_extensions", {})
         self._device = self.DEVICE_TYPES.get(self._device_type)(**stn_dict)
         if obs_map is None:
             obs_map = self._device.default_sensor_map()
         obs_map.update(obs_map_ext)
         self._obs_map = obs_map
-        loginf('sensor map: %s' % self._obs_map)
+        loginf("sensor map: %s" % self._obs_map)
         self._server_thread = threading.Thread(target=self._device.run_server)
         self._server_thread.setDaemon(True)
-        self._server_thread.setName('ServerThread')
+        self._server_thread.setName("ServerThread")
         self._server_thread.start()
 
     def closePort(self):
-        loginf('shutting down server thread')
+        loginf("shutting down server thread")
         self._device.stop_server()
         self._server_thread.join(20.0)
         if self._server_thread.isAlive():
-            logerr('unable to shut down server thread')
+            logerr("unable to shut down server thread")
 
     @property
     def hardware_name(self):
@@ -2603,22 +2834,21 @@ class InterceptorDriver(weewx.drivers.AbstractDevice):
         while True:
             try:
                 data = self._device.get_queue().get(True, self._queue_timeout)
-                logdbg('raw data: %s' % data)
+                logdbg("raw data: %s" % data)
                 pkt = self._device.parser.parse(data)
-                logdbg('raw packet: %s' % pkt)
+                logdbg("raw packet: %s" % pkt)
                 pkt = self._device.parser.map_to_fields(pkt, self._obs_map)
-                logdbg('mapped packet: %s' % pkt)
-                if pkt and 'dateTime' in pkt and 'usUnits' in pkt:
-                    if pkt['dateTime'] >= last_ts:
-                        last_ts = pkt['dateTime']
+                logdbg("mapped packet: %s" % pkt)
+                if pkt and "dateTime" in pkt and "usUnits" in pkt:
+                    if pkt["dateTime"] >= last_ts:
+                        last_ts = pkt["dateTime"]
                         yield pkt
                     else:
-                        loginf("skipping out-of-order packet %s ('%s')" %
-                               (pkt, data))
+                        loginf("skipping out-of-order packet %s ('%s')" % (pkt, data))
                 else:
                     logdbg("skipping bogus packet %s ('%s')" % (pkt, data))
             except Queue.Empty:
-                logdbg('empty queue')
+                logdbg("empty queue")
 
 
 # define a main entry point for determining sensor identifiers.
@@ -2626,49 +2856,97 @@ class InterceptorDriver(weewx.drivers.AbstractDevice):
 #
 # PYTHONPATH=bin python bin/user/interceptor.py
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     import optparse
 
     usage = """%prog [options] [--debug] [--help]"""
 
     parser = optparse.OptionParser(usage=usage)
-    parser.add_option('--version', dest='version', action='store_true',
-                      help='display driver version')
-    parser.add_option('--debug', dest='debug', action='store_true',
-                      default=False,
-                      help='display diagnostic information while running')
-    parser.add_option('--mode', dest='mode', metavar='MODE',
-                      default='listen',
-                      help='how to capture traffic: listen or sniff')
-    parser.add_option('--port', dest='port', metavar='PORT', type=int,
-                      default=DEFAULT_PORT,
-                      help='port on which to listen')
-    parser.add_option('--address', dest='addr', metavar='ADDRESS',
-                      default=DEFAULT_ADDR,
-                      help='address on which to bind')
-    parser.add_option('--iface', dest='iface', metavar='IFACE',
-                      default=DEFAULT_IFACE,
-                      help='network interface to sniff')
-    parser.add_option('--filter', dest='filter', metavar='FILTER',
-                      default=DEFAULT_FILTER,
-                      help='pcap filter for sniffing')
-    parser.add_option('--device', dest='device_type', metavar='DEVICE_TYPE',
-                      default=DEFAULT_DEVICE_TYPE,
-                      help='type of device for which to listen')
-    parser.add_option('--hardware_name', dest='hardware_name', metavar='HARDWARE_NAME',
-                      default=DEFAULT_HARDWARE_NAME,
-                      help='Short nickname for the weather station hardware')
-    parser.add_option('--data', dest='data', metavar='DATA',
-                      default='',
-                      help='data string for parse testing')
-    parser.add_option('--no-obfuscate', action='store_true', default=False,
-                      help='do not obfuscate passkeys/passwords')
-    parser.add_option('--parse-gw1000u', action='store_true',
-                      default=False,
-                      help='test gw1000u packet parsing')
-    parser.add_option('--test-gw1000u-response', action='store_true',
-                      default=False,
-                      help='test gw1000u responses')
+    parser.add_option(
+        "--version", dest="version", action="store_true", help="display driver version"
+    )
+    parser.add_option(
+        "--debug",
+        dest="debug",
+        action="store_true",
+        default=False,
+        help="display diagnostic information while running",
+    )
+    parser.add_option(
+        "--mode",
+        dest="mode",
+        metavar="MODE",
+        default="listen",
+        help="how to capture traffic: listen or sniff",
+    )
+    parser.add_option(
+        "--port",
+        dest="port",
+        metavar="PORT",
+        type=int,
+        default=DEFAULT_PORT,
+        help="port on which to listen",
+    )
+    parser.add_option(
+        "--address",
+        dest="addr",
+        metavar="ADDRESS",
+        default=DEFAULT_ADDR,
+        help="address on which to bind",
+    )
+    parser.add_option(
+        "--iface",
+        dest="iface",
+        metavar="IFACE",
+        default=DEFAULT_IFACE,
+        help="network interface to sniff",
+    )
+    parser.add_option(
+        "--filter",
+        dest="filter",
+        metavar="FILTER",
+        default=DEFAULT_FILTER,
+        help="pcap filter for sniffing",
+    )
+    parser.add_option(
+        "--device",
+        dest="device_type",
+        metavar="DEVICE_TYPE",
+        default=DEFAULT_DEVICE_TYPE,
+        help="type of device for which to listen",
+    )
+    parser.add_option(
+        "--hardware_name",
+        dest="hardware_name",
+        metavar="HARDWARE_NAME",
+        default=DEFAULT_HARDWARE_NAME,
+        help="Short nickname for the weather station hardware",
+    )
+    parser.add_option(
+        "--data",
+        dest="data",
+        metavar="DATA",
+        default="",
+        help="data string for parse testing",
+    )
+    parser.add_option(
+        "--no-obfuscate",
+        action="store_true",
+        default=False,
+        help="do not obfuscate passkeys/passwords",
+    )
+    parser.add_option(
+        "--parse-gw1000u",
+        action="store_true",
+        default=False,
+        help="test gw1000u packet parsing",
+    )
+    parser.add_option(
+        "--test-gw1000u-response",
+        action="store_true",
+        default=False,
+        help="test gw1000u responses",
+    )
 
     (options, args) = parser.parse_args()
 
@@ -2682,16 +2960,16 @@ if __name__ == '__main__':
     #    weeutil.logger.setup('interceptor', {})
 
     if options.data:
-        options.data = options.data.replace(' ', '')
+        options.data = options.data.replace(" ", "")
 
     if options.parse_gw1000u:
         parser = GW1000U.Parser()
-        print(parser.parse({'mac': 'tester', 'data': options.data}))
+        print(parser.parse({"mac": "tester", "data": options.data}))
         exit(0)
 
     if options.test_gw1000u_response:
         ts = int(time.time())
-#        ts = 1577681257 # for deterministic test comparisons
+        #        ts = 1577681257 # for deterministic test comparisons
         serial = GW1000U.station_serial
         server = GW1000U.server_name
         ping_interval = GW1000U.ping_interval
@@ -2707,25 +2985,52 @@ if __name__ == '__main__':
         print("sensor_interval: %s" % sensor_interval)
         print("history_interval: %s" % history_interval)
         print("last_address: %s" % last_history_address)
-        print("gateway_reg_response: %s" % _fmt_bytes(GW1000U.Handler._create_gateway_reg_response(server)))
-        print("gateway_ping_response: %s" % _fmt_bytes(GW1000U.Handler._create_gateway_ping_response(ping_interval)))
-        print("station_reg_response: %s" % _fmt_bytes(GW1000U.Handler._create_station_reg_response(ts, serial, brightness)))
-        print("station_ping_response: %s" % _fmt_bytes(GW1000U.Handler._create_station_ping_response(ts, serial, sensor_interval, history_interval, brightness, last_history_address)))
+        print(
+            "gateway_reg_response: %s"
+            % _fmt_bytes(GW1000U.Handler._create_gateway_reg_response(server))
+        )
+        print(
+            "gateway_ping_response: %s"
+            % _fmt_bytes(GW1000U.Handler._create_gateway_ping_response(ping_interval))
+        )
+        print(
+            "station_reg_response: %s"
+            % _fmt_bytes(
+                GW1000U.Handler._create_station_reg_response(ts, serial, brightness)
+            )
+        )
+        print(
+            "station_ping_response: %s"
+            % _fmt_bytes(
+                GW1000U.Handler._create_station_ping_response(
+                    ts,
+                    serial,
+                    sensor_interval,
+                    history_interval,
+                    brightness,
+                    last_history_address,
+                )
+            )
+        )
         exit(0)
 
     if not options.device_type in InterceptorDriver.DEVICE_TYPES:
-        raise TypeError("unsupported device type '%s'.  options include %s" %
-                        (options.device_type,
-                         ', '.join(InterceptorDriver.DEVICE_TYPES.keys())))
+        raise TypeError(
+            "unsupported device type '%s'.  options include %s"
+            % (options.device_type, ", ".join(InterceptorDriver.DEVICE_TYPES.keys()))
+        )
 
     device = InterceptorDriver.DEVICE_TYPES.get(options.device_type)(
         mode=options.mode,
-        iface=options.iface, pcap_filter=options.filter,
-        address=options.addr, port=options.port)
+        iface=options.iface,
+        pcap_filter=options.filter,
+        address=options.addr,
+        port=options.port,
+    )
 
     server_thread = threading.Thread(target=device.run_server)
     server_thread.setDaemon(True)
-    server_thread.setName('ServerThread')
+    server_thread.setName("ServerThread")
     server_thread.start()
 
     while True:
@@ -2733,23 +3038,23 @@ if __name__ == '__main__':
             _data = device.get_queue().get(True, 1)
             ids = device.parser.parse_identifiers(_data)
             if ids:
-                print('identifiers: %s' % ids)
+                print("identifiers: %s" % ids)
             if options.debug:
-                s = '%s' % _data
+                s = "%s" % _data
                 if not options.no_obfuscate:
                     s = _obfuscate_passwords(s)
-                print('raw data: %s' % s)
+                print("raw data: %s" % s)
             _pkt = device.parser.parse(_data)
             if options.debug:
-                s = '%s' % _pkt
+                s = "%s" % _pkt
                 if not options.no_obfuscate:
                     s = _obfuscate_passwords(s)
-                print('raw packet: %s' % s)
+                print("raw packet: %s" % s)
             _pkt = device.parser.map_to_fields(_pkt, device.default_sensor_map())
-            s = '%s' % _pkt
+            s = "%s" % _pkt
             if not options.no_obfuscate:
                 s = _obfuscate_passwords(s)
-            print('mapped packet: %s' % s)
+            print("mapped packet: %s" % s)
         except Queue.Empty:
             pass
         except KeyboardInterrupt:

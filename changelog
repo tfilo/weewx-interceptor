@@ -1,3 +1,6 @@
+1.0.1 208ct2025
+* added unrecognized parameter vpd to ignore list for Ecowitt client by @tfilo
+
 1.0.0 24aug2025
 * added reading relative pressure from ecowitt station by @tfilo
 * updated _delta_strikes to not cause strike on weewx restart by @tfilo

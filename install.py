@@ -10,7 +10,7 @@ def loader():
 class InterceptorInstaller(ExtensionInstaller):
     def __init__(self):
         super(InterceptorInstaller, self).__init__(
-            version="1.0.0",
+            version="1.0.1",
             name='interceptor',
             description='Capture weather data from HTTP requests',
             author="Matthew Wall",
