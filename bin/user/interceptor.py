@@ -433,6 +433,8 @@ class Consumer(object):
         "lightningcount": "lightningcount",
         "lightning_last_det_time": "lightning_time",
         "lightning_distance": "lightning_distance",
+        "console_batt": "console_batt",
+        "last24hrainin": "last24hrainin",
     }
 
     def default_sensor_map(self):
@@ -855,6 +857,8 @@ class WUClient(Consumer):
             # these have been observed, but apparently are unsupported?
             "windchillf": "windchill",
             "lowbatt": "battery",
+            "console_batt": "console_batt",
+            "last24hrainin": "last24hrainin",
         }
 
         IGNORED_LABELS = [
@@ -1473,6 +1477,8 @@ class Observer(Consumer):
             "windgustdir": "wind_gust_dir",
             "UV": "uv",
             "lowbatt": "battery",
+            "console_batt": "console_batt",
+            "last24hrainin": "last24hrainin",
         }
 
         IGNORED_LABELS = [
@@ -2604,6 +2610,8 @@ class EcowittClient(Consumer):
             "lightning_num": "lightningcount",
             "wh57batt": "wh57_battery",
             "wh80batt": "wh80_battery",
+            "console_batt": "console_batt",
+            "last24hrainin": "last24hrainin",
         }
 
         IGNORED_LABELS = [
