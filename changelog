@@ -1,4 +1,7 @@
-1.0.1 208ct2025
+1.0.2 15sep2026
+* added unrecognized soil temperature sensors tf_ch1...4 for Ecowitt client by @tfilo
+
+1.0.1 20oct2025
 * added unrecognized parameter vpd to ignore list for Ecowitt client by @tfilo
 
 1.0.0 24aug2025

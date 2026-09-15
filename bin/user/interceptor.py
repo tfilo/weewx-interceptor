@@ -314,7 +314,7 @@ import weewx.drivers
 import weeutil.weeutil
 
 DRIVER_NAME = "Interceptor"
-DRIVER_VERSION = "1.0.1"
+DRIVER_VERSION = "1.0.2"
 
 DEFAULT_ADDR = ""
 DEFAULT_PORT = 80
@@ -2612,6 +2612,10 @@ class EcowittClient(Consumer):
             "wh80batt": "wh80_battery",
             "console_batt": "console_batt",
             "last24hrainin": "last24hrainin",
+            "tf_ch1": "soil_temperature_1",
+	    "tf_ch2": "soil_temperature_2",
+            "tf_ch3": "soil_temperature_3",
+            "tf_ch4": "soil_temperature_4",
         }
 
         IGNORED_LABELS = [
@@ -2634,6 +2638,10 @@ class EcowittClient(Consumer):
             "heap",
             "interval",
             "vpd",
+            "tf_batt1",
+            "tf_batt2",
+            "tf_batt3",
+            "tf_batt4",
         ]
 
         def __init__(self):
